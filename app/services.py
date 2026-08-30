@@ -32,12 +32,16 @@ def get_tasks(
     skip: int = 0,
     limit: int = 100,
     completed: bool | None = None,
+    priority: str | None = None,
 ) -> tuple[list[Task], int]:
     """Get a list of tasks with pagination and optional filtering."""
     query = db.query(Task)
 
     if completed is not None:
         query = query.filter(Task.completed == completed)
+
+    if priority is not None:
+        query = query.filter(Task.priority == priority)
 
     total = query.count()
     tasks = query.order_by(Task.created_at.desc()).offset(skip).limit(limit).all()
@@ -73,8 +77,18 @@ def delete_task(db: Session, task_id: int) -> bool:
 
 
 def get_task_stats(db: Session) -> dict:
-    """Get task statistics (total, completed, pending)."""
+    """Get task statistics (total, completed, pending, by priority)."""
     total = db.query(func.count(Task.id)).scalar() or 0
     completed = db.query(func.count(Task.id)).filter(Task.completed == True).scalar() or 0  # noqa: E712
     pending = total - completed
-    return {"total": total, "completed": completed, "pending": pending}
+    high = db.query(func.count(Task.id)).filter(Task.priority == "high").scalar() or 0
+    medium = db.query(func.count(Task.id)).filter(Task.priority == "medium").scalar() or 0
+    low = db.query(func.count(Task.id)).filter(Task.priority == "low").scalar() or 0
+    return {
+        "total": total,
+        "completed": completed,
+        "pending": pending,
+        "high": high,
+        "medium": medium,
+        "low": low,
+    }

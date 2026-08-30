@@ -21,6 +21,12 @@ class TaskCreate(BaseModel):
         description="Optional description of the task",
         examples=["Milk, eggs, bread, butter"],
     )
+    priority: str = Field(
+        default="medium",
+        pattern=r"^(low|medium|high)$",
+        description="Task priority: low, medium, or high",
+        examples=["medium"],
+    )
     completed: bool = Field(
         default=False,
         description="Whether the task is completed",
@@ -43,6 +49,12 @@ class TaskUpdate(BaseModel):
         description="Optional description of the task",
         examples=["Milk, eggs, bread, butter"],
     )
+    priority: str | None = Field(
+        default=None,
+        pattern=r"^(low|medium|high)$",
+        description="Task priority: low, medium, or high",
+        examples=["medium"],
+    )
     completed: bool | None = Field(
         default=None,
         description="Whether the task is completed",
@@ -57,6 +69,7 @@ class TaskResponse(BaseModel):
     id: int
     title: str
     description: str | None
+    priority: str
     completed: bool
     created_at: datetime
     updated_at: datetime
