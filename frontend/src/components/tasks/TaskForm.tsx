@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import type { Task, TaskCreate, TaskUpdate, Priority } from '../../types/task';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
@@ -17,31 +17,19 @@ const priorityOptions: { value: Priority; label: string; color: string }[] = [
 ];
 
 export function TaskForm({ open, task, onSubmit, onClose }: TaskFormProps) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [priority, setPriority] = useState<Priority>('medium');
-  const [completed, setCompleted] = useState(false);
+  // State is initialized from the task prop. The parent remounts this
+  // component (via a changing `key`) whenever the task or open state
+  // changes, so these initializers always run with fresh values.
+  const [title, setTitle] = useState(task?.title ?? '');
+  const [description, setDescription] = useState(task?.description ?? '');
+  const [priority, setPriority] = useState<Priority>(task?.priority ?? 'medium');
+  const [completed, setCompleted] = useState(task?.completed ?? false);
   const [errors, setErrors] = useState<{ title?: string }>({});
   const [loading, setLoading] = useState(false);
 
   const isEditing = !!task;
 
   useEscapeKey(onClose, open && !loading);
-
-  useEffect(() => {
-    if (task) {
-      setTitle(task.title);
-      setDescription(task.description || '');
-      setPriority(task.priority || 'medium');
-      setCompleted(task.completed);
-    } else {
-      setTitle('');
-      setDescription('');
-      setPriority('medium');
-      setCompleted(false);
-    }
-    setErrors({});
-  }, [task, open]);
 
   function validate() {
     const newErrors: { title?: string } = {};

@@ -32,8 +32,6 @@ export function TasksPage() {
   const { addToast } = useToast();
 
   const fetchTasks = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     try {
       const data = await getTasks({
         skip: page * pageSize,
@@ -44,6 +42,7 @@ export function TasksPage() {
       });
       setTasks(data.tasks);
       setTotal(data.total);
+      setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load tasks');
     } finally {
@@ -52,13 +51,49 @@ export function TasksPage() {
   }, [page, filter, priorityFilter, search]);
 
   useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
+    let ignore = false;
+    async function load() {
+      try {
+        const data = await getTasks({
+          skip: page * pageSize,
+          limit: pageSize,
+          completed: filter,
+          priority: priorityFilter,
+          search: search,
+        });
+        if (!ignore) {
+          setTasks(data.tasks);
+          setTotal(data.total);
+          setError(null);
+        }
+      } catch (err) {
+        if (!ignore) {
+          setError(err instanceof Error ? err.message : 'Failed to load tasks');
+        }
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    }
+    void load();
+    return () => {
+      ignore = true;
+    };
+  }, [page, filter, priorityFilter, search]);
 
-  // Reset page when filter or search changes
-  useEffect(() => {
+  function handleFilterChange(value: boolean | null) {
+    setFilter(value);
     setPage(0);
-  }, [filter, priorityFilter, search]);
+  }
+
+  function handlePriorityFilterChange(value: string | null) {
+    setPriorityFilter(value);
+    setPage(0);
+  }
+
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    setPage(0);
+  }
 
   async function handleCreate(data: TaskCreate | TaskUpdate) {
     try {
@@ -182,9 +217,9 @@ export function TasksPage() {
           priorityFilter={priorityFilter}
           search={search}
           onPageChange={setPage}
-          onFilterChange={setFilter}
-          onPriorityFilterChange={setPriorityFilter}
-          onSearchChange={setSearch}
+          onFilterChange={handleFilterChange}
+          onPriorityFilterChange={handlePriorityFilterChange}
+          onSearchChange={handleSearchChange}
           onRefresh={fetchTasks}
           onEdit={handleEdit}
           onDelete={setDeleteTarget}
@@ -194,6 +229,7 @@ export function TasksPage() {
 
       {/* Task Form */}
       <TaskForm
+        key={formOpen ? editingTask?.id ?? 'create' : 'closed'}
         open={formOpen}
         task={editingTask}
         onSubmit={editingTask ? handleUpdate : handleCreate}

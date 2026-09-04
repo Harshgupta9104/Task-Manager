@@ -6,6 +6,7 @@ from sqlalchemy import Boolean, DateTime, Enum, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+from app.enums import Priority
 
 
 class Task(Base):
@@ -16,9 +17,9 @@ class Task(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
-    priority: Mapped[str] = mapped_column(
+    priority: Mapped[Priority] = mapped_column(
         String(10),
-        default="medium",
+        default=Priority.MEDIUM,
         nullable=False,
         index=True,
     )

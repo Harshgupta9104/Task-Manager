@@ -16,8 +16,6 @@ export function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
     try {
       const [statsData, tasksData] = await Promise.all([
         getTaskStats(),
@@ -25,6 +23,7 @@ export function DashboardPage() {
       ]);
       setStats(statsData);
       setRecentTasks(tasksData.tasks);
+      setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load dashboard');
     } finally {
@@ -33,8 +32,31 @@ export function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    let ignore = false;
+    async function load() {
+      try {
+        const [statsData, tasksData] = await Promise.all([
+          getTaskStats(),
+          getTasks({ limit: 5, skip: 0 }),
+        ]);
+        if (!ignore) {
+          setStats(statsData);
+          setRecentTasks(tasksData.tasks);
+          setError(null);
+        }
+      } catch (err) {
+        if (!ignore) {
+          setError(err instanceof Error ? err.message : 'Failed to load dashboard');
+        }
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    }
+    void load();
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   if (loading) return <DashboardSkeleton />;
 
