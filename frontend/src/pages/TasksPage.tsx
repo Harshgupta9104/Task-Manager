@@ -160,14 +160,14 @@ export function TasksPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Tasks</h2>
+          <h2 className="text-2xl font-bold text-gradient">Tasks</h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             {total} total task{total !== 1 ? 's' : ''}
           </p>
         </div>
         <button
           onClick={() => setFormOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-sky-600 rounded-xl hover:bg-sky-700 active:bg-sky-800 transition-colors shadow-sm"
+          className="btn-primary flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl"
         >
           <Plus className="h-4 w-4" />
           <span className="hidden sm:inline">New Task</span>
@@ -200,7 +200,7 @@ export function TasksPage() {
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Get started by creating your first task</p>
           <button
             onClick={() => setFormOpen(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-sky-600 rounded-xl hover:bg-sky-700 transition-colors"
+            className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-xl"
           >
             <Plus className="h-4 w-4" />
             Create Task

@@ -8,9 +8,15 @@ const icons = {
 };
 
 const styles = {
-  success: 'bg-emerald-50 dark:bg-emerald-950 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300',
-  error: 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800 text-red-800 dark:text-red-300',
-  info: 'bg-sky-50 dark:bg-sky-950 border-sky-200 dark:border-sky-800 text-sky-800 dark:text-sky-300',
+  success: 'text-emerald-700 dark:text-emerald-300',
+  error: 'text-red-700 dark:text-red-300',
+  info: 'text-sky-700 dark:text-sky-300',
+};
+
+const iconColors = {
+  success: 'text-emerald-500',
+  error: 'text-red-500',
+  info: 'text-sky-500',
 };
 
 interface ToastContainerProps {
@@ -28,9 +34,9 @@ export function ToastContainer({ toasts, onRemove }: ToastContainerProps) {
         return (
           <div
             key={toast.id}
-            className={`flex items-start gap-3 rounded-xl border px-4 py-3 shadow-lg animate-slide-in-right ${styles[toast.type]}`}
+            className={`glass-strong flex items-start gap-3 rounded-xl px-4 py-3 animate-slide-in-right ${styles[toast.type]}`}
           >
-            <Icon className="h-5 w-5 mt-0.5 shrink-0" />
+            <Icon className={`h-5 w-5 mt-0.5 shrink-0 ${iconColors[toast.type]}`} />
             <p className="text-sm font-medium flex-1">{toast.message}</p>
             <button
               onClick={() => onRemove(toast.id)}

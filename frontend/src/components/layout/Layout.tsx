@@ -10,7 +10,14 @@ export function Layout() {
   const { toasts, removeToast } = useToast();
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="flex h-screen text-gray-900 dark:text-gray-100">
+      {/* Ambient gradient background */}
+      <div className="ambient-bg" aria-hidden="true">
+        <div className="ambient-blob blob-1 animate-float-slow" />
+        <div className="ambient-blob blob-2 animate-float-slow" style={{ animationDelay: '-6s' }} />
+        <div className="ambient-blob blob-3 animate-float-slow" style={{ animationDelay: '-12s' }} />
+      </div>
+
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <TopBar onMenuClick={() => setSidebarOpen(true)} title="TaskFlow" />

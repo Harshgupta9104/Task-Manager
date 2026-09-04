@@ -24,10 +24,10 @@ function formatDate(dateStr: string) {
 export function RecentTasks({ tasks }: RecentTasksProps) {
   if (tasks.length === 0) {
     return (
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+      <div className="glass rounded-2xl p-6">
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Recent Tasks</h3>
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 mb-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/60 dark:bg-white/10 mb-3">
             <Clock className="h-6 w-6 text-gray-400 dark:text-gray-500" />
           </div>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">No tasks yet</p>
@@ -38,8 +38,8 @@ export function RecentTasks({ tasks }: RecentTasksProps) {
   }
 
   return (
-    <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+    <div className="glass rounded-2xl overflow-hidden">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-900/5 dark:border-white/10">
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Recent Tasks</h3>
         <Link
           to="/tasks"
@@ -48,9 +48,9 @@ export function RecentTasks({ tasks }: RecentTasksProps) {
           View all <ArrowRight className="h-3 w-3" />
         </Link>
       </div>
-      <div className="divide-y divide-gray-50 dark:divide-gray-800">
+      <div className="divide-y divide-gray-900/5 dark:divide-white/10">
         {tasks.map((task) => (
-          <div key={task.id} className="flex items-center gap-3 px-6 py-3 hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors">
+          <div key={task.id} className="flex items-center gap-3 px-6 py-3 hover:bg-white/50 dark:hover:bg-white/5 transition-colors">
             {task.completed ? (
               <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
             ) : (

@@ -10,11 +10,26 @@ interface TaskFormProps {
   onClose: () => void;
 }
 
-const priorityOptions: { value: Priority; label: string; color: string }[] = [
-  { value: 'low', label: 'Low', color: 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700' },
-  { value: 'medium', label: 'Medium', color: 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-700' },
-  { value: 'high', label: 'High', color: 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700' },
+const priorityOptions: { value: Priority; label: string; selected: string }[] = [
+  {
+    value: 'low',
+    label: 'Low',
+    selected: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/40',
+  },
+  {
+    value: 'medium',
+    label: 'Medium',
+    selected: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/40',
+  },
+  {
+    value: 'high',
+    label: 'High',
+    selected: 'bg-red-500/15 text-red-700 dark:text-red-300 border-red-500/40',
+  },
 ];
+
+const inputClass =
+  'glass-input w-full px-4 py-2.5 text-sm rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-sky-400/40 outline-none transition-all';
 
 export function TaskForm({ open, task, onSubmit, onClose }: TaskFormProps) {
   // State is initialized from the task prop. The parent remounts this
@@ -72,16 +87,16 @@ export function TaskForm({ open, task, onSubmit, onClose }: TaskFormProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg animate-zoom-in">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-md animate-fade-in" onClick={onClose} />
+      <div className="relative glass-strong rounded-2xl w-full max-w-lg animate-zoom-in">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-900/5 dark:border-white/10">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             {isEditing ? 'Edit Task' : 'Create Task'}
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-900/5 dark:hover:bg-white/10 rounded-lg transition-colors"
             aria-label="Close"
           >
             <X className="h-5 w-5" />
@@ -104,8 +119,10 @@ export function TaskForm({ open, task, onSubmit, onClose }: TaskFormProps) {
                 if (errors.title) setErrors({});
               }}
               placeholder="e.g., Buy groceries"
-              className={`w-full px-4 py-2.5 text-sm border rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-700 focus:ring-2 focus:ring-sky-100 outline-none transition-all ${
-                errors.title ? 'border-red-300 focus:border-red-400' : 'border-gray-200 dark:border-gray-700 focus:border-sky-300'
+              className={`${inputClass} ${
+                errors.title
+                  ? 'border-red-400! focus:ring-red-300/50!'
+                  : 'focus:border-sky-300'
               }`}
               autoFocus
             />
@@ -125,7 +142,7 @@ export function TaskForm({ open, task, onSubmit, onClose }: TaskFormProps) {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add a description (optional)"
               rows={3}
-              className="w-full px-4 py-2.5 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-700 focus:border-sky-300 focus:ring-2 focus:ring-sky-100 outline-none resize-none transition-all"
+              className={`${inputClass} resize-none`}
             />
           </div>
 
@@ -138,10 +155,10 @@ export function TaskForm({ open, task, onSubmit, onClose }: TaskFormProps) {
                   key={opt.value}
                   type="button"
                   onClick={() => setPriority(opt.value)}
-                  className={`flex-1 px-3 py-2 text-sm font-medium rounded-xl border-2 transition-all ${
+                  className={`flex-1 px-3 py-2 text-sm font-medium rounded-xl border transition-all ${
                     priority === opt.value
-                      ? opt.color + ' ring-2 ring-offset-1 ring-current/20'
-                      : 'border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600 bg-gray-50 dark:bg-gray-800'
+                      ? opt.selected + ' shadow-sm'
+                      : 'glass-input text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                   }`}
                 >
                   {opt.label}
@@ -157,12 +174,14 @@ export function TaskForm({ open, task, onSubmit, onClose }: TaskFormProps) {
               role="switch"
               aria-checked={completed}
               onClick={() => setCompleted(!completed)}
-              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-sky-200 ${
-                completed ? 'bg-sky-600' : 'bg-gray-200'
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-sky-300 ${
+                completed
+                  ? 'bg-gradient-to-r from-sky-500 to-indigo-500'
+                  : 'bg-gray-300 dark:bg-gray-600'
               }`}
             >
               <span
-                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition duration-200 ease-in-out ${
                   completed ? 'translate-x-5' : 'translate-x-0'
                 }`}
               />
@@ -176,14 +195,14 @@ export function TaskForm({ open, task, onSubmit, onClose }: TaskFormProps) {
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+              className="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-900/5 dark:bg-white/10 rounded-xl hover:bg-gray-900/10 dark:hover:bg-white/15 transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2.5 text-sm font-medium text-white bg-sky-600 rounded-xl hover:bg-sky-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="btn-primary px-5 py-2.5 text-sm font-medium rounded-xl flex items-center gap-2 disabled:opacity-50"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               {isEditing ? 'Save Changes' : 'Create Task'}
