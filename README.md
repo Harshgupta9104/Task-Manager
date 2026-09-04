@@ -1,6 +1,6 @@
-# 📋 Task Management API
+# 📋 Task Management Application
 
-A production-ready RESTful API for managing tasks, built with **FastAPI**, **SQLAlchemy**, and **SQLite**. Features full CRUD operations, pagination, filtering, task statistics, and auto-generated API documentation.
+A full-stack task management application with a **FastAPI** backend and **React** frontend. Features full CRUD operations, priority levels, filtering, pagination, task statistics, and a modern dashboard UI.
 
 ---
 
@@ -11,25 +11,22 @@ A production-ready RESTful API for managing tasks, built with **FastAPI**, **SQL
 - [Project Structure](#-project-structure)
 - [Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
+  - [Backend Setup](#backend-setup)
+  - [Frontend Setup](#frontend-setup)
   - [Environment Variables](#environment-variables)
-- [Running the API](#-running-the-api)
-  - [Development Server](#development-server)
-  - [Production Server](#production-server)
+- [Running the Application](#-running-the-application)
+  - [Run Backend Only](#run-backend-only)
+  - [Run Frontend Only](#run-frontend-only)
+  - [Run Both Together](#run-both-together)
+- [Database Schema](#-database-schema)
+  - [Tasks Table](#tasks-table)
+  - [Entity Relationship](#entity-relationship)
+  - [Database Flow](#database-flow)
+- [Application Flow](#-application-flow)
+  - [Data Flow Diagram](#data-flow-diagram)
+  - [User Journey](#user-journey)
 - [API Endpoints](#-api-endpoints)
-  - [Health Check](#health-check)
-  - [Task Operations](#task-operations)
-- [Request & Response Examples](#-request--response-examples)
-  - [Create a Task](#create-a-task)
-  - [List Tasks](#list-tasks)
-  - [Get a Task](#get-a-task)
-  - [Update a Task](#update-a-task)
-  - [Delete a Task](#delete-a-task)
-  - [Task Statistics](#task-statistics)
-- [Data Models](#-data-models)
-  - [Task Schema](#task-schema)
-  - [Request Schemas](#request-schemas)
-  - [Response Schemas](#response-schemas)
+- [Frontend Pages](#-frontend-pages)
 - [Testing](#-testing)
 - [Architecture](#-architecture)
 - [License](#-license)
@@ -38,31 +35,39 @@ A production-ready RESTful API for managing tasks, built with **FastAPI**, **SQL
 
 ## ✨ Features
 
-- **Full CRUD Operations** — Create, read, update, and delete tasks with ease
-- **Pagination & Filtering** — Paginate results and filter by completion status
-- **Task Statistics** — Get counts of total, completed, and pending tasks
-- **Request Validation** — Pydantic-powered validation with detailed error messages
-- **SQLite Database** — Zero-config database; no external setup required
-- **Auto-Generated Docs** — Swagger UI and ReDoc available out of the box
+- **Full CRUD Operations** — Create, read, update, and delete tasks
+- **Priority Levels** — Set tasks as low, medium, or high priority
+- **Filtering & Pagination** — Filter by completion status and priority
+- **Task Statistics** — Dashboard with total, completed, pending, and priority counts
+- **Modern UI** — React dashboard with responsive design
+- **SQLite Database** — Zero-config database, no external setup required
+- **Auto-Generated Docs** — Swagger UI and ReDoc for API exploration
 - **CORS Support** — Configurable cross-origin resource sharing
-- **Environment Configuration** — Settings via `.env` files using Pydantic Settings
-- **Comprehensive Tests** — Full test suite covering all endpoints and edge cases
-- **Clean Architecture** — Separated concerns: routers, services, models, and schemas
+- **Comprehensive Tests** — Full test suite for backend API
 
 ---
 
 ## 🛠 Tech Stack
 
+### Backend
 | Technology | Purpose |
 |---|---|
 | [FastAPI](https://fastapi.tiangolo.com/) | Async web framework |
 | [SQLAlchemy](https://www.sqlalchemy.org/) | ORM and database toolkit |
 | [SQLite](https://www.sqlite.org/) | Lightweight, embedded database |
 | [Pydantic](https://docs.pydantic.dev/) | Data validation and serialization |
-| [Pydantic Settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/) | Environment variable management |
 | [Uvicorn](https://www.uvicorn.org/) | ASGI server |
 | [Pytest](https://docs.pytest.org/) | Testing framework |
-| [HTTPX](https://www.python-httpx.org/) | Async HTTP client (used in tests) |
+
+### Frontend
+| Technology | Purpose |
+|---|---|
+| [React 19](https://react.dev/) | UI library |
+| [TypeScript](https://www.typescriptlang.org/) | Type-safe JavaScript |
+| [Vite](https://vitejs.dev/) | Build tool and dev server |
+| [Tailwind CSS](https://tailwindcss.com/) | Utility-first CSS framework |
+| [React Router](https://reactrouter.com/) | Client-side routing |
+| [Lucide React](https://lucide.dev/) | Icon library |
 
 ---
 
@@ -70,36 +75,38 @@ A production-ready RESTful API for managing tasks, built with **FastAPI**, **SQL
 
 ```
 .
-├── app/
-│   ├── __init__.py          # Package init
-│   ├── main.py              # FastAPI application entry point & middleware
-│   ├── config.py            # Environment variable configuration
-│   ├── database.py          # SQLAlchemy engine, session, and Base class
-│   ├── models.py            # SQLAlchemy ORM models (Task)
-│   ├── schemas.py           # Pydantic request/response schemas
-│   ├── services.py          # Business logic and CRUD operations
+├── app/                          # Backend (FastAPI)
+│   ├── __init__.py
+│   ├── main.py                   # App entry point & middleware
+│   ├── config.py                 # Environment configuration
+│   ├── database.py               # SQLAlchemy engine & session
+│   ├── models.py                 # ORM models (Task)
+│   ├── schemas.py                # Pydantic request/response schemas
+│   ├── services.py               # Business logic & CRUD operations
 │   └── routers/
-│       ├── __init__.py      # Package init
-│       └── tasks.py         # Task API endpoint definitions
-├── tests/
-│   ├── __init__.py          # Package init
-│   ├── conftest.py          # Pytest fixtures (test DB, client)
-│   └── test_tasks.py        # Endpoint tests (health, CRUD, stats)
-├── requirements.txt         # Python dependencies
-└── README.md                # This file
+│       ├── __init__.py
+│       └── tasks.py              # Task API endpoints
+├── frontend/                     # Frontend (React + Vite)
+│   ├── src/
+│   │   ├── App.tsx               # Router configuration
+│   │   ├── main.tsx              # React entry point
+│   │   ├── components/
+│   │   │   ├── layout/           # Layout components
+│   │   │   ├── tasks/            # Task form & table
+│   │   │   ├── dashboard/        # Dashboard widgets
+│   │   │   └── ui/               # Reusable UI components
+│   │   ├── pages/                # Page components
+│   │   ├── services/             # API client
+│   │   ├── hooks/                # Custom React hooks
+│   │   └── types/                # TypeScript types
+│   ├── package.json
+│   └── vite.config.ts
+├── tests/                        # Backend tests
+│   ├── conftest.py
+│   └── test_tasks.py
+├── requirements.txt              # Python dependencies
+└── README.md
 ```
-
-### Key Files Explained
-
-| File | Description |
-|---|---|
-| `app/main.py` | App initialization, CORS middleware, router registration, and health endpoints. Creates database tables on startup via lifespan. |
-| `app/config.py` | Loads settings from environment variables and `.env` files using `pydantic-settings`. |
-| `app/database.py` | Creates the SQLAlchemy engine and `SessionLocal` factory. Provides the `get_db` dependency for FastAPI. |
-| `app/models.py` | Defines the `Task` ORM model with fields: `id`, `title`, `description`, `completed`, `created_at`, `updated_at`. |
-| `app/schemas.py` | Pydantic schemas for request validation (`TaskCreate`, `TaskUpdate`) and response serialization (`TaskResponse`, `TaskListResponse`). |
-| `app/services.py` | Pure business logic layer — all database interactions for tasks: create, get, list, update, delete, and stats. |
-| `app/routers/tasks.py` | FastAPI router defining all `/api/v1/tasks/` endpoints with proper HTTP methods, status codes, and documentation. |
 
 ---
 
@@ -107,23 +114,21 @@ A production-ready RESTful API for managing tasks, built with **FastAPI**, **SQL
 
 ### Prerequisites
 
-- **Python 3.10+** (uses `X | Y` union syntax and `Mapped` type annotations)
-- **pip** (Python package manager)
+- **Python 3.10+** (uses modern type hints)
+- **Node.js 18+** (for frontend)
+- **npm** (Node package manager)
 
-### Installation
+### Backend Setup
 
-1. **Clone the repository:**
-
-   ```bash
-   git clone <repository-url>
-   cd task-management-api
-   ```
-
-2. **Create and activate a virtual environment:**
+1. **Navigate to project root and create a virtual environment:**
 
    ```bash
    python -m venv venv
+   ```
 
+2. **Activate the virtual environment:**
+
+   ```bash
    # On macOS/Linux
    source venv/bin/activate
 
@@ -131,7 +136,7 @@ A production-ready RESTful API for managing tasks, built with **FastAPI**, **SQL
    venv\Scripts\activate
    ```
 
-3. **Install dependencies:**
+3. **Install Python dependencies:**
 
    ```bash
    pip install -r requirements.txt
@@ -140,60 +145,304 @@ A production-ready RESTful API for managing tasks, built with **FastAPI**, **SQL
 4. **(Optional) Create a `.env` file for custom configuration:**
 
    ```bash
-   cp .env.example .env
+   # In the project root
+   echo "APP_NAME=Task Manager" > .env
+   echo "DEBUG=true" >> .env
    ```
 
-   Edit the `.env` file to customize your settings (see [Environment Variables](#environment-variables)).
+### Frontend Setup
 
-> **Note:** The SQLite database file (`task_manager.db`) is created automatically on first run.
+1. **Navigate to frontend directory:**
+
+   ```bash
+   cd frontend
+   ```
+
+2. **Install Node.js dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+3. **(Optional) Create a `.env` file:**
+
+   ```bash
+   # In the frontend directory
+   echo "VITE_API_URL=http://localhost:8000" > .env
+   ```
 
 ### Environment Variables
+
+#### Backend (.env in project root)
 
 | Variable | Default | Description |
 |---|---|---|
 | `APP_NAME` | `Task Management API` | Application display name |
-| `APP_VERSION` | `1.0.0` | Application version string |
+| `APP_VERSION` | `1.0.0` | Application version |
 | `DEBUG` | `false` | Enable debug mode |
-| `DATABASE_URL` | `sqlite:///./task_manager.db` | SQLAlchemy database connection URL |
-| `ALLOWED_ORIGINS` | `["*"]` | Comma-separated list of allowed CORS origins |
+| `DATABASE_URL` | `sqlite:///./task_manager.db` | Database connection URL |
+| `ALLOWED_ORIGINS` | `["*"]` | CORS allowed origins |
 
-Example `.env` file:
+#### Frontend (frontend/.env)
 
-```env
-APP_NAME=My Task Manager
-APP_VERSION=2.0.0
-DEBUG=true
-DATABASE_URL=sqlite:///./my_tasks.db
-ALLOWED_ORIGINS=["http://localhost:3000","https://myapp.com"]
+| Variable | Default | Description |
+|---|---|---|
+| `VITE_API_URL` | `http://localhost:8000` | Backend API URL |
+
+---
+
+## ▶️ Running the Application
+
+### Run Backend Only
+
+From the **project root** directory:
+
+```bash
+# Make sure virtual environment is activated
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+
+# Start the backend server
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+The backend will be available at:
+- **API:** http://localhost:8000
+- **Swagger UI:** http://localhost:8000/docs
+- **ReDoc:** http://localhost:8000/redoc
+- **Health Check:** http://localhost:8000/health
+
+### Run Frontend Only
+
+From the **frontend** directory:
+
+```bash
+cd frontend
+npm run dev
+```
+
+The frontend will be available at: http://localhost:5173
+
+### Run Both Together
+
+**Terminal 1 - Backend:**
+```bash
+# From project root
+source venv/bin/activate
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+**Terminal 2 - Frontend:**
+```bash
+# From project root
+cd frontend
+npm run dev
+```
+
+> **Note:** The frontend is configured to proxy API requests to the backend automatically via Vite's proxy settings.
+
+---
+
+## 🗄️ Database Schema
+
+### Tasks Table
+
+The application uses a single SQLite database with one table:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        tasks                                 │
+├─────────────────────────────────────────────────────────────┤
+│ id          INTEGER       PRIMARY KEY, AUTOINCREMENT        │
+│ title       VARCHAR(255)  NOT NULL, INDEXED                 │
+│ description TEXT          NULLABLE                          │
+│ priority    VARCHAR(10)   NOT NULL, DEFAULT 'medium', INDEXED│
+│ completed   BOOLEAN       NOT NULL, DEFAULT false           │
+│ created_at  DATETIME      NOT NULL, AUTO-SET (UTC)          │
+│ updated_at  DATETIME      NOT NULL, AUTO-SET/UPDATE (UTC)   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Field Details
+
+| Field | Type | Constraints | Description |
+|---|---|---|---|
+| `id` | `INTEGER` | Primary key, auto-increment | Unique task identifier |
+| `title` | `VARCHAR(255)` | Not null, indexed | Task title (1-255 chars) |
+| `description` | `TEXT` | Nullable | Optional task description (max 5000 chars) |
+| `priority` | `VARCHAR(10)` | Not null, indexed | Priority level: `low`, `medium`, or `high` |
+| `completed` | `BOOLEAN` | Not null, default `false` | Completion status |
+| `created_at` | `DATETIME` | Not null, auto-set | Creation timestamp (UTC) |
+| `updated_at` | `DATETIME` | Not null, auto-set on update | Last update timestamp (UTC) |
+
+### Entity Relationship
+
+```
+┌──────────────────────────────────────────┐
+│              tasks (TABLE)                │
+├──────────────────────────────────────────┤
+│  PK  id ─────────────────────────────┐   │
+│      title                           │   │
+│      description                     │   │
+│      priority                        │   │
+│      completed                       │   │
+│      created_at                      │   │
+│      updated_at                      │   │
+└──────────────────────────────────────┼───┘
+                                       │
+                              ┌────────┴────────┐
+                              │   INDEXES        │
+                              ├─────────────────┤
+                              │ idx_tasks_id    │
+                              │ idx_tasks_title │
+                              │ idx_tasks_prio  │
+                              └─────────────────┘
+```
+
+### Database Flow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     DATABASE OPERATIONS                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌─────────────┐      ┌─────────────┐      ┌─────────────┐     │
+│  │   CREATE    │      │    READ     │      │   UPDATE    │     │
+│  │             │      │             │      │             │     │
+│  │ INSERT INTO │      │ SELECT *    │      │ UPDATE      │     │
+│  │ tasks (...) │      │ FROM tasks  │      │ tasks SET   │     │
+│  │ VALUES (...)│      │ WHERE ...   │      │ ... WHERE   │     │
+│  └──────┬──────┘      └──────┬──────┘      └──────┬──────┘     │
+│         │                    │                    │             │
+│         ▼                    ▼                    ▼             │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                    SQLite Database                       │   │
+│  │                   task_manager.db                        │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│         ▲                    ▲                    ▲             │
+│         │                    │                    │             │
+│  ┌──────┴──────┐      ┌─────┴──────┐      ┌─────┴──────┐     │
+│  │   DELETE    │      │   STATS    │      │  FILTER    │     │
+│  │             │      │            │      │            │     │
+│  │ DELETE FROM │      │ COUNT(*)   │      │ SELECT *   │     │
+│  │ tasks WHERE │      │ GROUP BY   │      │ WHERE      │     │
+│  │ id = ...    │      │ priority   │      │ completed  │     │
+│  └─────────────┘      └────────────┘      │ priority   │     │
+│                                           └────────────┘     │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## ▶️ Running the API
+## 🔄 Application Flow
 
-### Development Server
+### Data Flow Diagram
 
-With auto-reload enabled (recommended for development):
-
-```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     FULL APPLICATION FLOW                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │                    USER (Browser)                        │    │
+│  └────────────────────────┬────────────────────────────────┘    │
+│                           │                                      │
+│                           ▼                                      │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │                  REACT FRONTEND                          │    │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐              │    │
+│  │  │Dashboard │  │  Tasks   │  │  About   │              │    │
+│  │  │  Page    │  │  Page    │  │  Page    │              │    │
+│  │  └────┬─────┘  └────┬─────┘  └──────────┘              │    │
+│  │       │              │                                   │    │
+│  │       ▼              ▼                                   │    │
+│  │  ┌─────────────────────────────────────────────────┐    │    │
+│  │  │            API Service (api.ts)                  │    │    │
+│  │  │  getTasks() | createTask() | updateTask()       │    │    │
+│  │  │  deleteTask() | getTaskStats()                  │    │    │
+│  │  └─────────────────────┬───────────────────────────┘    │    │
+│  └────────────────────────┼────────────────────────────────┘    │
+│                           │                                      │
+│                           ▼                                      │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │              HTTP PROXY (Vite Dev Server)                │    │
+│  │         /api/* → http://localhost:8000                   │    │
+│  └────────────────────────┬────────────────────────────────┘    │
+│                           │                                      │
+│                           ▼                                      │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │                  FASTAPI BACKEND                         │    │
+│  │  ┌─────────────────────────────────────────────────┐    │    │
+│  │  │              Router Layer                        │    │    │
+│  │  │        /api/v1/tasks/* endpoints                 │    │    │
+│  │  └─────────────────────┬───────────────────────────┘    │    │
+│  │                        │                                 │    │
+│  │                        ▼                                 │    │
+│  │  ┌─────────────────────────────────────────────────┐    │    │
+│  │  │              Service Layer                       │    │    │
+│  │  │     Business logic & CRUD operations             │    │    │
+│  │  └─────────────────────┬───────────────────────────┘    │    │
+│  │                        │                                 │    │
+│  │                        ▼                                 │    │
+│  │  ┌─────────────────────────────────────────────────┐    │    │
+│  │  │              Model Layer (SQLAlchemy)             │    │    │
+│  │  │            Task ORM Model                        │    │    │
+│  │  └─────────────────────┬───────────────────────────┘    │    │
+│  └────────────────────────┼────────────────────────────────┘    │
+│                           │                                      │
+│                           ▼                                      │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │               SQLite DATABASE                            │    │
+│  │              task_manager.db                              │    │
+│  │            ┌─────────────────┐                           │    │
+│  │            │     tasks       │                           │    │
+│  │            └─────────────────┘                           │    │
+│  └─────────────────────────────────────────────────────────┘    │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-Once running, access the API at:
+### User Journey
 
-| URL | Description |
-|---|---|
-| http://localhost:8000 | API base URL |
-| http://localhost:8000/docs | **Swagger UI** — interactive API explorer |
-| http://localhost:8000/redoc | **ReDoc** — readable API documentation |
-| http://localhost:8000/health | Detailed health check |
-
-### Production Server
-
-Run with multiple worker processes:
-
-```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     USER JOURNEY FLOW                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  1. USER OPENS APP                                              │
+│     │                                                           │
+│     ▼                                                           │
+│  ┌─────────────────┐                                            │
+│  │  Dashboard Page  │ ◄── GET /api/v1/tasks/stats                │
+│  │  (Stats View)    │     Shows: total, completed, pending,     │
+│  └────────┬────────┘     priority breakdown                     │
+│           │                                                     │
+│           ▼                                                     │
+│  2. NAVIGATES TO TASKS                                          │
+│     │                                                           │
+│     ▼                                                           │
+│  ┌─────────────────┐                                            │
+│  │   Tasks Page     │ ◄── GET /api/v1/tasks/                    │
+│  │  (Task List)     │     Lists all tasks with filters          │
+│  └────────┬────────┘                                            │
+│           │                                                     │
+│           ├──────────────────┬──────────────────┐               │
+│           ▼                  ▼                  ▼               │
+│  ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐   │
+│  │  CREATE TASK    │ │  EDIT TASK      │ │  DELETE TASK    │   │
+│  │                 │ │                 │ │                 │   │
+│  │ POST /tasks/    │ │ PUT /tasks/{id} │ │ DELETE /tasks/  │   │
+│  │                 │ │                 │ │     {id}        │   │
+│  └────────┬────────┘ └────────┬────────┘ └────────┬────────┘   │
+│           │                  │                  │               │
+│           └──────────────────┴──────────────────┘               │
+│                          │                                      │
+│                          ▼                                      │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │              REFRESH TASK LIST                           │    │
+│  │         GET /api/v1/tasks/ (updated data)                │    │
+│  └─────────────────────────────────────────────────────────┘    │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -202,10 +451,10 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
 
 ### Health Check
 
-| Method | Endpoint | Description | Response |
-|---|---|---|---|
-| `GET` | `/` | Basic health check | `{"status": "healthy", "app": "...", "version": "..."}` |
-| `GET` | `/health` | Detailed health check (includes `debug` flag) | `{"status": "healthy", "app": "...", "version": "...", "debug": false}` |
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/` | Basic health check |
+| `GET` | `/health` | Detailed health check |
 
 ### Task Operations
 
@@ -214,338 +463,106 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
 | `POST` | `/api/v1/tasks/` | Create a new task | `201`, `422` |
 | `GET` | `/api/v1/tasks/` | List tasks (paginated, filterable) | `200` |
 | `GET` | `/api/v1/tasks/stats` | Get task statistics | `200` |
-| `GET` | `/api/v1/tasks/{id}` | Get a specific task by ID | `200`, `404` |
-| `PUT` | `/api/v1/tasks/{id}` | Update a task (partial updates supported) | `200`, `404`, `422` |
+| `GET` | `/api/v1/tasks/{id}` | Get a specific task | `200`, `404` |
+| `PUT` | `/api/v1/tasks/{id}` | Update a task | `200`, `404`, `422` |
 | `DELETE` | `/api/v1/tasks/{id}` | Delete a task | `204`, `404` |
 
-#### Query Parameters for `GET /api/v1/tasks/`
+### Query Parameters
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `skip` | `int` | `0` | Number of tasks to skip (for pagination) |
-| `limit` | `int` | `100` | Maximum number of tasks to return (max: 500) |
-| `completed` | `bool \| null` | `null` | Filter by completion status (`true` or `false`) |
+| `skip` | `int` | `0` | Number of tasks to skip |
+| `limit` | `int` | `100` | Max tasks to return (max: 500) |
+| `completed` | `bool` | `null` | Filter by completion status |
+| `priority` | `string` | `null` | Filter by priority (low/medium/high) |
 
 ---
 
-## 📨 Request & Response Examples
+## 🖥️ Frontend Pages
 
-### Create a Task
-
-**Request:**
-
-```bash
-curl -X POST http://localhost:8000/api/v1/tasks/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "Buy groceries",
-    "description": "Milk, eggs, bread, butter",
-    "completed": false
-  }'
-```
-
-**Response `201 Created`:**
-
-```json
-{
-  "id": 1,
-  "title": "Buy groceries",
-  "description": "Milk, eggs, bread, butter",
-  "completed": false,
-  "created_at": "2024-01-15T10:30:00Z",
-  "updated_at": "2024-01-15T10:30:00Z"
-}
-```
-
-**Minimal Request (only title required):**
-
-```bash
-curl -X POST http://localhost:8000/api/v1/tasks/ \
-  -H "Content-Type: application/json" \
-  -d '{"title": "Quick task"}'
-```
-
----
-
-### List Tasks
-
-**Request:**
-
-```bash
-curl "http://localhost:8000/api/v1/tasks/?skip=0&limit=10&completed=false"
-```
-
-**Response `200 OK`:**
-
-```json
-{
-  "tasks": [
-    {
-      "id": 2,
-      "title": "Buy groceries",
-      "description": "Milk, eggs, bread, butter",
-      "completed": false,
-      "created_at": "2024-01-15T10:30:00Z",
-      "updated_at": "2024-01-15T10:30:00Z"
-    }
-  ],
-  "total": 1
-}
-```
-
-> **Note:** Tasks are returned in descending order by `created_at` (newest first).
-
----
-
-### Get a Task
-
-**Request:**
-
-```bash
-curl http://localhost:8000/api/v1/tasks/1
-```
-
-**Response `200 OK`:**
-
-```json
-{
-  "id": 1,
-  "title": "Buy groceries",
-  "description": "Milk, eggs, bread, butter",
-  "completed": false,
-  "created_at": "2024-01-15T10:30:00Z",
-  "updated_at": "2024-01-15T10:30:00Z"
-}
-```
-
-**Response `404 Not Found`:**
-
-```json
-{
-  "detail": "Task with id 1 not found"
-}
-```
-
----
-
-### Update a Task
-
-**Request (partial update — only send fields you want to change):**
-
-```bash
-curl -X PUT http://localhost:8000/api/v1/tasks/1 \
-  -H "Content-Type: application/json" \
-  -d '{"completed": true}'
-```
-
-**Response `200 OK`:**
-
-```json
-{
-  "id": 1,
-  "title": "Buy groceries",
-  "description": "Milk, eggs, bread, butter",
-  "completed": true,
-  "created_at": "2024-01-15T10:30:00Z",
-  "updated_at": "2024-01-15T12:00:00Z"
-}
-```
-
----
-
-### Delete a Task
-
-**Request:**
-
-```bash
-curl -X DELETE http://localhost:8000/api/v1/tasks/1
-```
-
-**Response `204 No Content`** — empty body on success.
-
-**Response `404 Not Found`:**
-
-```json
-{
-  "detail": "Task with id 1 not found"
-}
-```
-
----
-
-### Task Statistics
-
-**Request:**
-
-```bash
-curl http://localhost:8000/api/v1/tasks/stats
-```
-
-**Response `200 OK`:**
-
-```json
-{
-  "total": 10,
-  "completed": 4,
-  "pending": 6
-}
-```
-
----
-
-## 📐 Data Models
-
-### Task Schema
-
-The database `Task` model has the following fields:
-
-| Field | Type | Constraints | Description |
-|---|---|---|---|
-| `id` | `Integer` | Primary key, auto-increment, indexed | Unique task identifier |
-| `title` | `String(255)` | Not null, indexed | Task title |
-| `description` | `Text` | Nullable | Optional task description |
-| `completed` | `Boolean` | Not null, default `false` | Completion status |
-| `created_at` | `DateTime(timezone=True)` | Not null, auto-set | Timestamp of creation (UTC) |
-| `updated_at` | `DateTime(timezone=True)` | Not null, auto-set & auto-updated | Timestamp of last update (UTC) |
-
-### Request Schemas
-
-#### `TaskCreate`
-
-Used when creating a new task (`POST /api/v1/tasks/`).
-
-| Field | Type | Required | Validation |
-|---|---|---|---|
-| `title` | `str` | ✅ Yes | 1–255 characters |
-| `description` | `str \| None` | ❌ No | Max 5000 characters |
-| `completed` | `bool` | ❌ No | Default: `false` |
-
-#### `TaskUpdate`
-
-Used when updating an existing task (`PUT /api/v1/tasks/{id}`). All fields are optional — only provided fields are updated.
-
-| Field | Type | Required | Validation |
-|---|---|---|---|
-| `title` | `str \| None` | ❌ No | 1–255 characters |
-| `description` | `str \| None` | ❌ No | Max 5000 characters |
-| `completed` | `bool \| None` | ❌ No | — |
-
-### Response Schemas
-
-#### `TaskResponse`
-
-Returned by single-task endpoints.
-
-| Field | Type |
-|---|---|
-| `id` | `int` |
-| `title` | `str` |
-| `description` | `str \| None` |
-| `completed` | `bool` |
-| `created_at` | `datetime` |
-| `updated_at` | `datetime` |
-
-#### `TaskListResponse`
-
-Returned by the list endpoint (`GET /api/v1/tasks/`).
-
-| Field | Type |
-|---|---|
-| `tasks` | `list[TaskResponse]` |
-| `total` | `int` |
-
-#### `ErrorResponse`
-
-Returned on validation errors and not-found errors.
-
-| Field | Type |
-|---|---|
-| `detail` | `str` |
+| Page | Route | Description |
+|---|---|---|
+| Dashboard | `/` | Overview with task statistics |
+| Tasks | `/tasks` | Full task list with CRUD operations |
+| About | `/about` | Application information |
+| 404 | `*` | Not found page |
 
 ---
 
 ## 🧪 Testing
 
-The project includes a comprehensive test suite using **Pytest** with **FastAPI's TestClient**.
-
-### Run All Tests
+### Run Backend Tests
 
 ```bash
+# From project root with venv activated
 pytest tests/ -v
 ```
 
 ### Run Specific Test Classes
 
 ```bash
-# Health endpoint tests
 pytest tests/test_tasks.py::TestHealthEndpoints -v
-
-# CRUD tests
 pytest tests/test_tasks.py::TestCreateTask -v
 pytest tests/test_tasks.py::TestListTasks -v
 pytest tests/test_tasks.py::TestGetTask -v
 pytest tests/test_tasks.py::TestUpdateTask -v
 pytest tests/test_tasks.py::TestDeleteTask -v
-
-# Stats tests
 pytest tests/test_tasks.py::TestTaskStats -v
-
-# Integration test (full lifecycle)
 pytest tests/test_tasks.py::TestFullCRUDLifecycle -v
 ```
-
-### Test Coverage
-
-| Test Class | Tests | Description |
-|---|---|---|
-| `TestHealthEndpoints` | 2 | Basic and detailed health checks |
-| `TestCreateTask` | 6 | Create with full data, minimal data, completed state, validation errors |
-| `TestListTasks` | 5 | Empty list, multiple tasks, pagination, filtering, ordering |
-| `TestGetTask` | 2 | Successful retrieval and 404 handling |
-| `TestUpdateTask` | 4 | Full update, partial update, 404, empty body |
-| `TestDeleteTask` | 3 | Successful deletion, 404, double-delete prevention |
-| `TestTaskStats` | 2 | Stats with empty DB and with tasks |
-| `TestFullCRUDLifecycle` | 1 | End-to-end create → read → update → list → delete flow |
-
-### Test Infrastructure
-
-- Uses a **separate SQLite database** (`test.db`) for test isolation
-- Each test gets a **fresh database session** that is created and torn down automatically
-- FastAPI dependency injection is **overridden** to use the test database
 
 ---
 
 ## 🏗 Architecture
 
-The project follows a **layered architecture** with clear separation of concerns:
+### Backend Architecture
 
 ```
-┌─────────────────────────────────────────────────┐
-│                   Routers                        │
-│         (app/routers/tasks.py)                   │
-│   HTTP methods, status codes, request parsing    │
-├─────────────────────────────────────────────────┤
-│                  Services                        │
-│              (app/services.py)                   │
-│      Business logic, CRUD operations             │
-├─────────────────────────────────────────────────┤
-│                   Models                         │
-│              (app/models.py)                     │
-│        SQLAlchemy ORM definitions                │
-├─────────────────────────────────────────────────┤
-│                 Database                         │
-│             (app/database.py)                    │
-│       Engine, sessions, Base class               │
-└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                    REQUEST FLOW                          │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│  Client Request                                         │
+│       │                                                 │
+│       ▼                                                 │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │  Router (app/routers/tasks.py)                   │   │
+│  │  - Parse HTTP request                            │   │
+│  │  - Validate query params                         │   │
+│  │  - Return HTTP response                          │   │
+│  └─────────────────────┬───────────────────────────┘   │
+│                        │                                 │
+│                        ▼                                 │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │  Service (app/services.py)                       │   │
+│  │  - Business logic                                │   │
+│  │  - Database queries                              │   │
+│  │  - Data transformation                           │   │
+│  └─────────────────────┬───────────────────────────┘   │
+│                        │                                 │
+│                        ▼                                 │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │  Model (app/models.py)                           │   │
+│  │  - SQLAlchemy ORM                                │   │
+│  │  - Table definitions                             │   │
+│  └─────────────────────┬───────────────────────────┘   │
+│                        │                                 │
+│                        ▼                                 │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │  Database (SQLite)                               │   │
+│  │  - task_manager.db                               │   │
+│  └─────────────────────────────────────────────────┘   │
+│                                                          │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ### Design Decisions
 
-- **Router → Service → Model pattern:** Routers handle HTTP concerns, services contain business logic, models define data structure. This makes the codebase testable and maintainable.
-- **Dependency injection:** Database sessions are injected via FastAPI's `Depends()`, enabling easy testing with mock databases.
-- **Partial updates:** The `TaskUpdate` schema uses `exclude_unset=True` so only explicitly provided fields are updated, preserving existing values.
-- **UTC timestamps:** All timestamps use timezone-aware UTC datetimes for consistency.
-- **Lifespan management:** Database tables are created on application startup using FastAPI's modern `lifespan` context manager (not the deprecated `on_event`).
+- **Router → Service → Model pattern:** Clear separation of concerns
+- **Dependency injection:** Database sessions via FastAPI's `Depends()`
+- **Partial updates:** `TaskUpdate` uses `exclude_unset=True` for selective field updates
+- **UTC timestamps:** All times in timezone-aware UTC
+- **Lifespan management:** Tables created on startup using modern `lifespan` context manager
 
 ---
 
@@ -555,4 +572,4 @@ This project is licensed under the **MIT License**.
 
 ---
 
-Built with ❤️ using FastAPI
+Built with ❤️ using FastAPI + React
