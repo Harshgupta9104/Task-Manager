@@ -29,6 +29,7 @@ export async function getTasks(params?: {
   limit?: number;
   completed?: boolean | null;
   priority?: string | null;
+  search?: string | null;
 }): Promise<TaskListResponse> {
   const searchParams = new URLSearchParams();
   if (params?.skip !== undefined) searchParams.set('skip', String(params.skip));
@@ -38,6 +39,9 @@ export async function getTasks(params?: {
   }
   if (params?.priority !== null && params?.priority !== undefined) {
     searchParams.set('priority', params.priority);
+  }
+  if (params?.search !== null && params?.search !== undefined && params.search.trim()) {
+    searchParams.set('search', params.search.trim());
   }
   const query = searchParams.toString();
   return request<TaskListResponse>(`/tasks/${query ? `?${query}` : ''}`);

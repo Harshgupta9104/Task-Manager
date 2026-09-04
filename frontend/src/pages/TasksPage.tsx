@@ -40,6 +40,7 @@ export function TasksPage() {
         limit: pageSize,
         completed: filter,
         priority: priorityFilter,
+        search: search,
       });
       setTasks(data.tasks);
       setTotal(data.total);
@@ -48,25 +49,16 @@ export function TasksPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, filter, priorityFilter]);
+  }, [page, filter, priorityFilter, search]);
 
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
 
-  // Reset page when filter changes
+  // Reset page when filter or search changes
   useEffect(() => {
     setPage(0);
-  }, [filter, priorityFilter]);
-
-  // Client-side search filtering
-  const filteredTasks = search.trim()
-    ? tasks.filter(
-        (t) =>
-          t.title.toLowerCase().includes(search.toLowerCase()) ||
-          (t.description && t.description.toLowerCase().includes(search.toLowerCase()))
-      )
-    : tasks;
+  }, [filter, priorityFilter, search]);
 
   async function handleCreate(data: TaskCreate | TaskUpdate) {
     try {
@@ -181,8 +173,8 @@ export function TasksPage() {
         </div>
       ) : (
         <TaskTable
-          tasks={filteredTasks}
-          total={search.trim() ? filteredTasks.length : total}
+          tasks={tasks}
+          total={total}
           loading={loading}
           page={page}
           pageSize={pageSize}

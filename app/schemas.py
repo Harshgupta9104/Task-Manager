@@ -1,8 +1,11 @@
 """Pydantic schemas for request validation and response serialization."""
 
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
+
+Priority = Literal["low", "medium", "high"]
 
 
 class TaskCreate(BaseModel):
@@ -21,9 +24,8 @@ class TaskCreate(BaseModel):
         description="Optional description of the task",
         examples=["Milk, eggs, bread, butter"],
     )
-    priority: str = Field(
+    priority: Priority = Field(
         default="medium",
-        pattern=r"^(low|medium|high)$",
         description="Task priority: low, medium, or high",
         examples=["medium"],
     )
@@ -49,9 +51,8 @@ class TaskUpdate(BaseModel):
         description="Optional description of the task",
         examples=["Milk, eggs, bread, butter"],
     )
-    priority: str | None = Field(
+    priority: Priority | None = Field(
         default=None,
-        pattern=r"^(low|medium|high)$",
         description="Task priority: low, medium, or high",
         examples=["medium"],
     )
@@ -69,7 +70,7 @@ class TaskResponse(BaseModel):
     id: int
     title: str
     description: str | None
-    priority: str
+    priority: Priority
     completed: bool
     created_at: datetime
     updated_at: datetime

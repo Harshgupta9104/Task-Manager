@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas import (
     ErrorResponse,
+    Priority,
     TaskCreate,
     TaskListResponse,
     TaskResponse,
@@ -53,14 +54,18 @@ def list_tasks(
         default=None,
         description="Filter by completion status",
     ),
-    priority: str | None = Query(
+    priority: Priority | None = Query(
         default=None,
         description="Filter by priority (low, medium, high)",
+    ),
+    search: str | None = Query(
+        default=None,
+        description="Search tasks by title or description",
     ),
     db: Session = Depends(get_db),
 ) -> TaskListResponse:
     """Get a paginated list of tasks with optional filtering."""
-    tasks, total = get_tasks(db=db, skip=skip, limit=limit, completed=completed, priority=priority)
+    tasks, total = get_tasks(db=db, skip=skip, limit=limit, completed=completed, priority=priority, search=search)
     return TaskListResponse(
         tasks=[TaskResponse.model_validate(t) for t in tasks],
         total=total,

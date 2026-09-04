@@ -78,6 +78,248 @@ class TestCreateTask:
         response = client.post("/api/v1/tasks/", json=payload)
         assert response.status_code == 422
 
+    def test_create_task_priority_low(self, client):
+        payload = {"title": "Low priority task", "priority": "low"}
+        response = client.post("/api/v1/tasks/", json=payload)
+        assert response.status_code == 201
+        data = response.json()
+        assert data["priority"] == "low"
+
+        # Verify persistence
+        get_resp = client.get(f"/api/v1/tasks/{data['id']}")
+        assert get_resp.status_code == 200
+        assert get_resp.json()["priority"] == "low"
+
+    def test_create_task_priority_medium(self, client):
+        payload = {"title": "Medium priority task", "priority": "medium"}
+        response = client.post("/api/v1/tasks/", json=payload)
+        assert response.status_code == 201
+        data = response.json()
+        assert data["priority"] == "medium"
+
+        get_resp = client.get(f"/api/v1/tasks/{data['id']}")
+        assert get_resp.status_code == 200
+        assert get_resp.json()["priority"] == "medium"
+
+    def test_create_task_priority_high(self, client):
+        payload = {"title": "High priority task", "priority": "high"}
+        response = client.post("/api/v1/tasks/", json=payload)
+        assert response.status_code == 201
+        data = response.json()
+        assert data["priority"] == "high"
+
+        get_resp = client.get(f"/api/v1/tasks/{data['id']}")
+        assert get_resp.status_code == 200
+        assert get_resp.json()["priority"] == "high"
+
+    def test_create_task_priority_default(self, client):
+        payload = {"title": "Default priority task"}
+        response = client.post("/api/v1/tasks/", json=payload)
+        assert response.status_code == 201
+        data = response.json()
+        assert data["priority"] == "medium"
+
+
+# ─── Priority Validation ────────────────────────────────────────────
+
+
+class TestPriorityValidation:
+    """Tests for priority filter validation."""
+
+    def test_invalid_priority_query_returns_422(self, client):
+        response = client.get("/api/v1/tasks/?priority=urgent")
+        assert response.status_code == 422
+
+    def test_invalid_priority_critical_returns_422(self, client):
+        response = client.get("/api/v1/tasks/?priority=critical")
+        assert response.status_code == 422
+
+    def test_invalid_priority_foo_returns_422(self, client):
+        response = client.get("/api/v1/tasks/?priority=foo")
+        assert response.status_code == 422
+
+    def test_valid_priority_low(self, client):
+        response = client.get("/api/v1/tasks/?priority=low")
+        assert response.status_code == 200
+
+    def test_valid_priority_medium(self, client):
+        response = client.get("/api/v1/tasks/?priority=medium")
+        assert response.status_code == 200
+
+    def test_valid_priority_high(self, client):
+        response = client.get("/api/v1/tasks/?priority=high")
+        assert response.status_code == 200
+
+    def test_invalid_priority_in_create_returns_422(self, client):
+        payload = {"title": "Bad priority", "priority": "urgent"}
+        response = client.post("/api/v1/tasks/", json=payload)
+        assert response.status_code == 422
+
+    def test_invalid_priority_in_update_returns_422(self, client):
+        # Create a valid task first
+        create_resp = client.post("/api/v1/tasks/", json={"title": "Task"})
+        task_id = create_resp.json()["id"]
+
+        response = client.put(
+            f"/api/v1/tasks/{task_id}", json={"priority": "critical"}
+        )
+        assert response.status_code == 422
+
+
+# ─── Search ─────────────────────────────────────────────────────────
+
+
+class TestSearch:
+    """Tests for GET /api/v1/tasks/?search=..."""
+
+    def test_search_by_title(self, client):
+        client.post("/api/v1/tasks/", json={"title": "Buy groceries"})
+        client.post("/api/v1/tasks/", json={"title": "Clean house"})
+        client.post("/api/v1/tasks/", json={"title": "Walk the dog"})
+
+        response = client.get("/api/v1/tasks/?search=groceries")
+        data = response.json()
+        assert data["total"] == 1
+        assert data["tasks"][0]["title"] == "Buy groceries"
+
+    def test_search_by_description(self, client):
+        client.post(
+            "/api/v1/tasks/",
+            json={"title": "Shopping", "description": "Buy milk and eggs"},
+        )
+        client.post(
+            "/api/v1/tasks/",
+            json={"title": "Cooking", "description": "Make pasta dinner"},
+        )
+
+        response = client.get("/api/v1/tasks/?search=milk")
+        data = response.json()
+        assert data["total"] == 1
+        assert data["tasks"][0]["title"] == "Shopping"
+
+    def test_search_case_insensitive(self, client):
+        client.post("/api/v1/tasks/", json={"title": "Buy Groceries"})
+
+        response = client.get("/api/v1/tasks/?search=groceries")
+        data = response.json()
+        assert data["total"] == 1
+
+        response = client.get("/api/v1/tasks/?search=GROCERIES")
+        data = response.json()
+        assert data["total"] == 1
+
+        response = client.get("/api/v1/tasks/?search=GrOcErIeS")
+        data = response.json()
+        assert data["total"] == 1
+
+    def test_search_partial_match(self, client):
+        client.post("/api/v1/tasks/", json={"title": "Buy groceries"})
+
+        response = client.get("/api/v1/tasks/?search=groc")
+        data = response.json()
+        assert data["total"] == 1
+
+        response = client.get("/api/v1/tasks/?search=buy")
+        data = response.json()
+        assert data["total"] == 1
+
+    def test_search_no_results(self, client):
+        client.post("/api/v1/tasks/", json={"title": "Buy groceries"})
+
+        response = client.get("/api/v1/tasks/?search=nonexistent")
+        data = response.json()
+        assert data["total"] == 0
+        assert data["tasks"] == []
+
+    def test_search_across_multiple_pages(self, client):
+        # Create 15 tasks where 5 match
+        for i in range(10):
+            client.post("/api/v1/tasks/", json={"title": f"Task {i}"})
+        for i in range(5):
+            client.post(
+                "/api/v1/tasks/", json={"title": f"Important item {i}"}
+            )
+
+        # Search for "Important" — should match 5 tasks
+        response = client.get("/api/v1/tasks/?search=Important&skip=0&limit=3")
+        data = response.json()
+        assert data["total"] == 5
+        assert len(data["tasks"]) == 3
+
+        # Get page 2
+        response = client.get("/api/v1/tasks/?search=Important&skip=3&limit=3")
+        data = response.json()
+        assert data["total"] == 5
+        assert len(data["tasks"]) == 2
+
+    def test_search_with_priority_filter(self, client):
+        client.post(
+            "/api/v1/tasks/",
+            json={"title": "Important high", "priority": "high"},
+        )
+        client.post(
+            "/api/v1/tasks/",
+            json={"title": "Important low", "priority": "low"},
+        )
+        client.post(
+            "/api/v1/tasks/",
+            json={"title": "Other high", "priority": "high"},
+        )
+
+        response = client.get(
+            "/api/v1/tasks/?search=Important&priority=high"
+        )
+        data = response.json()
+        assert data["total"] == 1
+        assert data["tasks"][0]["title"] == "Important high"
+
+    def test_search_with_completion_filter(self, client):
+        client.post(
+            "/api/v1/tasks/",
+            json={"title": "Important done", "completed": True},
+        )
+        client.post(
+            "/api/v1/tasks/",
+            json={"title": "Important pending", "completed": False},
+        )
+
+        response = client.get(
+            "/api/v1/tasks/?search=Important&completed=false"
+        )
+        data = response.json()
+        assert data["total"] == 1
+        assert data["tasks"][0]["title"] == "Important pending"
+
+    def test_search_total_represents_all_matches(self, client):
+        for i in range(25):
+            client.post(
+                "/api/v1/tasks/",
+                json={"title": f"Match task {i}", "priority": "high"},
+            )
+        for i in range(10):
+            client.post(
+                "/api/v1/tasks/",
+                json={"title": f"Other task {i}", "priority": "low"},
+            )
+
+        response = client.get(
+            "/api/v1/tasks/?search=Match&limit=10"
+        )
+        data = response.json()
+        assert data["total"] == 25
+        assert len(data["tasks"]) == 10
+
+    def test_empty_search_is_no_filter(self, client):
+        client.post("/api/v1/tasks/", json={"title": "Task 1"})
+
+        response = client.get("/api/v1/tasks/?search=")
+        data = response.json()
+        assert data["total"] == 1
+
+        response = client.get("/api/v1/tasks/?search=   ")
+        data = response.json()
+        assert data["total"] == 1
+
 
 # ─── GET /tasks (list) ─────────────────────────────────────────────
 
@@ -135,6 +377,26 @@ class TestListTasks:
         assert len(data["tasks"]) == 1
         assert data["tasks"][0]["title"] == "Pending"
 
+    def test_list_tasks_filter_priority(self, client):
+        client.post("/api/v1/tasks/", json={"title": "Low task", "priority": "low"})
+        client.post("/api/v1/tasks/", json={"title": "Medium task", "priority": "medium"})
+        client.post("/api/v1/tasks/", json={"title": "High task", "priority": "high"})
+
+        response = client.get("/api/v1/tasks/?priority=low")
+        data = response.json()
+        assert len(data["tasks"]) == 1
+        assert data["tasks"][0]["priority"] == "low"
+
+        response = client.get("/api/v1/tasks/?priority=medium")
+        data = response.json()
+        assert len(data["tasks"]) == 1
+        assert data["tasks"][0]["priority"] == "medium"
+
+        response = client.get("/api/v1/tasks/?priority=high")
+        data = response.json()
+        assert len(data["tasks"]) == 1
+        assert data["tasks"][0]["priority"] == "high"
+
     def test_list_tasks_ordering(self, client):
         client.post("/api/v1/tasks/", json={"title": "First"})
         client.post("/api/v1/tasks/", json={"title": "Second"})
@@ -146,6 +408,24 @@ class TestListTasks:
         assert data["tasks"][0]["title"] == "Third"
         assert data["tasks"][1]["title"] == "Second"
         assert data["tasks"][2]["title"] == "First"
+
+    def test_filter_before_pagination(self, client):
+        """Verify that filtering happens before pagination."""
+        # Create 5 low, 5 high
+        for i in range(5):
+            client.post(
+                "/api/v1/tasks/", json={"title": f"Low {i}", "priority": "low"}
+            )
+        for i in range(5):
+            client.post(
+                "/api/v1/tasks/", json={"title": f"High {i}", "priority": "high"}
+            )
+
+        # Request limit=3 but only high priority
+        response = client.get("/api/v1/tasks/?priority=high&limit=3")
+        data = response.json()
+        assert data["total"] == 5
+        assert len(data["tasks"]) == 3
 
 
 # ─── GET /tasks/{id} ───────────────────────────────────────────────
@@ -229,6 +509,18 @@ class TestUpdateTask:
         assert response.status_code == 200
         data = response.json()
         assert data["title"] == "No change"
+
+    def test_update_task_priority(self, client):
+        create_resp = client.post(
+            "/api/v1/tasks/", json={"title": "Priority update", "priority": "low"}
+        )
+        task_id = create_resp.json()["id"]
+
+        response = client.put(
+            f"/api/v1/tasks/{task_id}", json={"priority": "high"}
+        )
+        assert response.status_code == 200
+        assert response.json()["priority"] == "high"
 
 
 # ─── DELETE /tasks/{id} ─────────────────────────────────────────────

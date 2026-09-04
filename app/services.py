@@ -6,7 +6,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.models import Task
-from app.schemas import TaskCreate, TaskUpdate
+from app.schemas import Priority, TaskCreate, TaskUpdate
 
 
 def create_task(db: Session, task_data: TaskCreate) -> Task:
@@ -14,6 +14,7 @@ def create_task(db: Session, task_data: TaskCreate) -> Task:
     db_task = Task(
         title=task_data.title,
         description=task_data.description,
+        priority=task_data.priority,
         completed=task_data.completed,
     )
     db.add(db_task)
@@ -32,18 +33,31 @@ def get_tasks(
     skip: int = 0,
     limit: int = 100,
     completed: bool | None = None,
-    priority: str | None = None,
+    priority: Priority | None = None,
+    search: str | None = None,
 ) -> tuple[list[Task], int]:
     """Get a list of tasks with pagination and optional filtering."""
     query = db.query(Task)
 
+    # 1. Search
+    if search and search.strip():
+        term = f"%{search.strip()}%"
+        query = query.filter(
+            Task.title.ilike(term) | Task.description.ilike(term)
+        )
+
+    # 2. Completion filter
     if completed is not None:
         query = query.filter(Task.completed == completed)
 
+    # 3. Priority filter
     if priority is not None:
         query = query.filter(Task.priority == priority)
 
+    # 4. Total matching
     total = query.count()
+
+    # 5. Order and paginate
     tasks = query.order_by(Task.created_at.desc()).offset(skip).limit(limit).all()
 
     return tasks, total
