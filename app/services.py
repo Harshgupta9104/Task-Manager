@@ -2,11 +2,13 @@
 
 from datetime import datetime, timezone
 
+import sqlalchemy as sa
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from app.enums import Priority
 from app.models import Task
-from app.schemas import Priority, TaskCreate, TaskUpdate
+from app.schemas import TaskCreate, TaskUpdate
 
 
 def create_task(db: Session, task_data: TaskCreate) -> Task:
@@ -91,18 +93,34 @@ def delete_task(db: Session, task_id: int) -> bool:
 
 
 def get_task_stats(db: Session) -> dict:
-    """Get task statistics (total, completed, pending, by priority)."""
-    total = db.query(func.count(Task.id)).scalar() or 0
-    completed = db.query(func.count(Task.id)).filter(Task.completed == True).scalar() or 0  # noqa: E712
-    pending = total - completed
-    high = db.query(func.count(Task.id)).filter(Task.priority == "high").scalar() or 0
-    medium = db.query(func.count(Task.id)).filter(Task.priority == "medium").scalar() or 0
-    low = db.query(func.count(Task.id)).filter(Task.priority == "low").scalar() or 0
+    """Get task statistics (total, completed, pending, by priority).
+
+    Uses a single aggregate query with CASE expressions to reduce
+    database round trips while remaining readable.
+    """
+    result = db.query(
+        func.count(Task.id).label("total"),
+        func.sum(
+            func.cast(Task.completed == True, sa.Integer)  # noqa: E712
+        ).label("completed"),
+        func.sum(
+            func.cast(Task.priority == "high", sa.Integer)
+        ).label("high"),
+        func.sum(
+            func.cast(Task.priority == "medium", sa.Integer)
+        ).label("medium"),
+        func.sum(
+            func.cast(Task.priority == "low", sa.Integer)
+        ).label("low"),
+    ).one()
+
+    total = result.total or 0
+    completed = result.completed or 0
     return {
         "total": total,
         "completed": completed,
-        "pending": pending,
-        "high": high,
-        "medium": medium,
-        "low": low,
+        "pending": total - completed,
+        "high": result.high or 0,
+        "medium": result.medium or 0,
+        "low": result.low or 0,
     }

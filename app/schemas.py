@@ -1,11 +1,10 @@
 """Pydantic schemas for request validation and response serialization."""
 
 from datetime import datetime
-from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-Priority = Literal["low", "medium", "high"]
+from app.enums import Priority
 
 
 class TaskCreate(BaseModel):

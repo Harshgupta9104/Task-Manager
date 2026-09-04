@@ -54,6 +54,7 @@ A full-stack task management application with a **FastAPI** backend and **React*
 |---|---|
 | [FastAPI](https://fastapi.tiangolo.com/) | Async web framework |
 | [SQLAlchemy](https://www.sqlalchemy.org/) | ORM and database toolkit |
+| [Alembic](https://alembic.sqlalchemy.org/) | Database migrations |
 | [SQLite](https://www.sqlite.org/) | Lightweight, embedded database |
 | [Pydantic](https://docs.pydantic.dev/) | Data validation and serialization |
 | [Uvicorn](https://www.uvicorn.org/) | ASGI server |
@@ -75,11 +76,17 @@ A full-stack task management application with a **FastAPI** backend and **React*
 
 ```
 .
+├── alembic/                      # Database migrations
+│   ├── versions/                 # Migration scripts
+│   ├── env.py                    # Alembic environment config
+│   └── script.py.mako            # Migration template
+├── alembic.ini                   # Alembic configuration
 ├── app/                          # Backend (FastAPI)
 │   ├── __init__.py
 │   ├── main.py                   # App entry point & middleware
 │   ├── config.py                 # Environment configuration
 │   ├── database.py               # SQLAlchemy engine & session
+│   ├── enums.py                  # Shared enums (Priority)
 │   ├── models.py                 # ORM models (Task)
 │   ├── schemas.py                # Pydantic request/response schemas
 │   ├── services.py               # Business logic & CRUD operations
@@ -181,7 +188,7 @@ A full-stack task management application with a **FastAPI** backend and **React*
 | `APP_VERSION` | `1.0.0` | Application version |
 | `DEBUG` | `false` | Enable debug mode |
 | `DATABASE_URL` | `sqlite:///./task_manager.db` | Database connection URL |
-| `ALLOWED_ORIGINS` | `["*"]` | CORS allowed origins |
+| `ALLOWED_ORIGINS` | `http://localhost:5173` | CORS allowed origins (comma-separated or JSON array) |
 
 #### Frontend (frontend/.env)
 
@@ -239,6 +246,35 @@ npm run dev
 ```
 
 > **Note:** The frontend is configured to proxy API requests to the backend automatically via Vite's proxy settings.
+
+### Database Migrations
+
+The application uses **Alembic** for database schema management. Never use `Base.metadata.create_all()` to create tables in production.
+
+**Initialize the database:**
+
+```bash
+# Apply all migrations to bring the database to the latest schema
+alembic upgrade head
+```
+
+**Create a new migration:**
+
+```bash
+# Auto-generate a migration from model changes
+alembic revision --autogenerate -m "description of changes"
+
+# Or create an empty migration template
+alembic revision -m "description of changes"
+```
+
+**Other commands:**
+
+```bash
+alembic current          # Show current migration version
+alembic history          # Show migration history
+alembic downgrade -1     # Roll back one migration
+```
 
 ---
 
@@ -562,7 +598,10 @@ pytest tests/test_tasks.py::TestFullCRUDLifecycle -v
 - **Dependency injection:** Database sessions via FastAPI's `Depends()`
 - **Partial updates:** `TaskUpdate` uses `exclude_unset=True` for selective field updates
 - **UTC timestamps:** All times in timezone-aware UTC
-- **Lifespan management:** Tables created on startup using modern `lifespan` context manager
+- **Lifespan management:** Modern `lifespan` context manager
+- **Database migrations:** Alembic for schema management
+- **Shared Priority enum:** Single source of truth for priority values
+- **Global error handling:** Catches unexpected errors without leaking internals
 
 ---
 

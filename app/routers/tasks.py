@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.enums import Priority
 from app.schemas import (
     ErrorResponse,
-    Priority,
     TaskCreate,
     TaskListResponse,
     TaskResponse,

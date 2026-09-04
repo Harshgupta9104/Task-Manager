@@ -1,6 +1,12 @@
 """Tests for Task CRUD endpoints."""
 
 import pytest
+from sqlalchemy import create_engine, inspect
+from sqlalchemy.orm import sessionmaker
+
+from app.database import Base, get_db
+from app.enums import Priority
+from app.schemas import TaskCreate
 
 
 # ─── Health Endpoints ───────────────────────────────────────────────
@@ -641,3 +647,256 @@ class TestFullCRUDLifecycle:
         # 7. Confirm empty list
         list_after_del = client.get("/api/v1/tasks/")
         assert list_after_del.json()["total"] == 0
+
+
+# ─── Phase 2: Priority Enum ────────────────────────────────────────
+
+
+class TestPriorityEnum:
+    """Tests for the shared Priority enum."""
+
+    def test_priority_enum_values(self):
+        assert Priority.LOW == "low"
+        assert Priority.MEDIUM == "medium"
+        assert Priority.HIGH == "high"
+
+    def test_priority_enum_is_string(self):
+        assert isinstance(Priority.LOW, str)
+        assert isinstance(Priority.MEDIUM, str)
+        assert isinstance(Priority.HIGH, str)
+
+    def test_priority_low_accepted(self, client):
+        response = client.post("/api/v1/tasks/", json={"title": "Low", "priority": "low"})
+        assert response.status_code == 201
+        assert response.json()["priority"] == "low"
+
+    def test_priority_medium_accepted(self, client):
+        response = client.post("/api/v1/tasks/", json={"title": "Medium", "priority": "medium"})
+        assert response.status_code == 201
+        assert response.json()["priority"] == "medium"
+
+    def test_priority_high_accepted(self, client):
+        response = client.post("/api/v1/tasks/", json={"title": "High", "priority": "high"})
+        assert response.status_code == 201
+        assert response.json()["priority"] == "high"
+
+    def test_invalid_priority_enum_value(self, client):
+        response = client.post("/api/v1/tasks/", json={"title": "Bad", "priority": "urgent"})
+        assert response.status_code == 422
+
+    def test_priority_string_in_api_response(self, client):
+        """API should return plain strings, not Python enum repr."""
+        response = client.post("/api/v1/tasks/", json={"title": "Test", "priority": "high"})
+        assert response.status_code == 201
+        data = response.json()
+        assert data["priority"] == "high"
+        # Must not contain enum class details
+        assert "Priority" not in data["priority"]
+
+    def test_priority_filter_with_enum(self, client):
+        """Priority filter should use the enum for validation."""
+        client.post("/api/v1/tasks/", json={"title": "High task", "priority": "high"})
+        client.post("/api/v1/tasks/", json={"title": "Low task", "priority": "low"})
+
+        response = client.get("/api/v1/tasks/?priority=high")
+        assert response.status_code == 200
+        assert response.json()["total"] == 1
+        assert response.json()["tasks"][0]["priority"] == "high"
+
+
+# ─── Phase 2: Migration Schema ─────────────────────────────────────
+
+
+class TestMigrationSchema:
+    """Tests that migration can create the schema correctly."""
+
+    def test_tasks_table_has_expected_columns(self, db_session):
+        """Verify the tasks table has all expected columns."""
+        engine = db_session.get_bind()
+        inspector = inspect(engine)
+        columns = {col["name"] for col in inspector.get_columns("tasks")}
+
+        expected = {"id", "title", "description", "priority", "completed", "created_at", "updated_at"}
+        assert columns == expected
+
+    def test_tasks_table_has_indexes(self, db_session):
+        """Verify indexes exist on title and priority columns."""
+        engine = db_session.get_bind()
+        inspector = inspect(engine)
+        indexes = inspector.get_indexes("tasks")
+        index_columns = [tuple(idx["column_names"]) for idx in indexes]
+
+        # title and priority should be indexed
+        has_title_index = any("title" in cols for cols in index_columns)
+        has_priority_index = any("priority" in cols for cols in index_columns)
+        assert has_title_index, "title should be indexed"
+        assert has_priority_index, "priority should be indexed"
+
+    def test_application_works_with_schema(self, client):
+        """Verify CRUD operations work against the schema."""
+        # Create
+        resp = client.post("/api/v1/tasks/", json={"title": "Migration test"})
+        assert resp.status_code == 201
+        task_id = resp.json()["id"]
+
+        # Read
+        resp = client.get(f"/api/v1/tasks/{task_id}")
+        assert resp.status_code == 200
+
+        # Update
+        resp = client.put(f"/api/v1/tasks/{task_id}", json={"title": "Updated"})
+        assert resp.status_code == 200
+
+        # Delete
+        resp = client.delete(f"/api/v1/tasks/{task_id}")
+        assert resp.status_code == 204
+
+
+# ─── Phase 2: Statistics Optimization ───────────────────────────────
+
+
+class TestTaskStatsBreakdown:
+    """Tests for the optimized statistics query with priority breakdown."""
+
+    def test_stats_priority_counts(self, client):
+        client.post("/api/v1/tasks/", json={"title": "High 1", "priority": "high"})
+        client.post("/api/v1/tasks/", json={"title": "High 2", "priority": "high"})
+        client.post("/api/v1/tasks/", json={"title": "Medium 1", "priority": "medium"})
+        client.post("/api/v1/tasks/", json={"title": "Low 1", "priority": "low"})
+        client.post("/api/v1/tasks/", json={"title": "Low 2", "priority": "low"})
+        client.post("/api/v1/tasks/", json={"title": "Low 3", "priority": "low"})
+
+        response = client.get("/api/v1/tasks/stats")
+        data = response.json()
+        assert data["total"] == 6
+        assert data["high"] == 2
+        assert data["medium"] == 1
+        assert data["low"] == 3
+
+    def test_stats_completed_vs_pending(self, client):
+        client.post("/api/v1/tasks/", json={"title": "Done 1", "completed": True, "priority": "high"})
+        client.post("/api/v1/tasks/", json={"title": "Done 2", "completed": True, "priority": "low"})
+        client.post("/api/v1/tasks/", json={"title": "Pending 1", "completed": False, "priority": "medium"})
+
+        response = client.get("/api/v1/tasks/stats")
+        data = response.json()
+        assert data["total"] == 3
+        assert data["completed"] == 2
+        assert data["pending"] == 1
+        assert data["high"] == 1
+        assert data["medium"] == 1
+        assert data["low"] == 1
+
+    def test_stats_pending_equals_total_minus_completed(self, client):
+        for i in range(7):
+            client.post(
+                "/api/v1/tasks/",
+                json={"title": f"Task {i}", "completed": i % 2 == 0},
+            )
+
+        response = client.get("/api/v1/tasks/stats")
+        data = response.json()
+        assert data["pending"] == data["total"] - data["completed"]
+
+    def test_stats_empty_database(self, client):
+        response = client.get("/api/v1/tasks/stats")
+        data = response.json()
+        assert data == {
+            "total": 0,
+            "completed": 0,
+            "pending": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+        }
+
+    def test_stats_priority_counts_with_completed(self, client):
+        """Priority counts include both completed and pending tasks."""
+        client.post("/api/v1/tasks/", json={"title": "High done", "priority": "high", "completed": True})
+        client.post("/api/v1/tasks/", json={"title": "High pending", "priority": "high", "completed": False})
+
+        response = client.get("/api/v1/tasks/stats")
+        data = response.json()
+        assert data["total"] == 2
+        assert data["high"] == 2
+        assert data["completed"] == 1
+        assert data["pending"] == 1
+
+
+# ─── Phase 2: Error Handling ────────────────────────────────────────
+
+
+class TestErrorHandling:
+    """Tests for standardized API error responses."""
+
+    def test_nonexistent_task_returns_404_with_detail(self, client):
+        response = client.get("/api/v1/tasks/99999")
+        assert response.status_code == 404
+        data = response.json()
+        assert "detail" in data
+        assert "99999" in data["detail"]
+
+    def test_invalid_priority_in_query_returns_422(self, client):
+        response = client.get("/api/v1/tasks/?priority=urgent")
+        assert response.status_code == 422
+
+    def test_invalid_request_body_returns_422(self, client):
+        response = client.post("/api/v1/tasks/", json={})
+        assert response.status_code == 422
+
+    def test_invalid_json_returns_422(self, client):
+        response = client.post(
+            "/api/v1/tasks/",
+            content="not json",
+            headers={"Content-Type": "application/json"},
+        )
+        assert response.status_code == 422
+
+    def test_update_nonexistent_returns_404(self, client):
+        response = client.put("/api/v1/tasks/99999", json={"title": "x"})
+        assert response.status_code == 404
+        assert "detail" in response.json()
+
+    def test_delete_nonexistent_returns_404(self, client):
+        response = client.delete("/api/v1/tasks/99999")
+        assert response.status_code == 404
+        assert "detail" in response.json()
+
+    def test_404_detail_mentions_task_id(self, client):
+        response = client.get("/api/v1/tasks/42")
+        assert response.status_code == 404
+        assert "42" in response.json()["detail"]
+
+
+# ─── Phase 2: Configuration ─────────────────────────────────────────
+
+
+class TestConfiguration:
+    """Tests for application configuration."""
+
+    def test_settings_has_cors_origins(self):
+        from app.config import settings
+        assert hasattr(settings, "ALLOWED_ORIGINS")
+        assert isinstance(settings.ALLOWED_ORIGINS, list)
+        assert len(settings.ALLOWED_ORIGINS) > 0
+
+    def test_settings_has_database_url(self):
+        from app.config import settings
+        assert hasattr(settings, "DATABASE_URL")
+        assert isinstance(settings.DATABASE_URL, str)
+
+    def test_settings_has_app_metadata(self):
+        from app.config import settings
+        assert settings.APP_NAME
+        assert settings.APP_VERSION
+
+    def test_cors_origins_are_configurable(self):
+        """ALLOWED_ORIGINS should not be a wildcard by default."""
+        from app.config import settings
+        assert "*" not in settings.ALLOWED_ORIGINS
+
+    def test_priority_enum_matches_frontend_type(self):
+        """Backend Priority enum values must match the frontend type."""
+        frontend_valid = {"low", "medium", "high"}
+        backend_valid = {p.value for p in Priority}
+        assert frontend_valid == backend_valid
