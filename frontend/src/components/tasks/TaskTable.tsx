@@ -169,18 +169,25 @@ export function TaskTable({
                 </td>
               </tr>
             ) : (
-              tasks.map((task) => (
-                <tr key={task.id} className="hover:bg-white/50 dark:hover:bg-white/5 transition-colors">
+              tasks.map((task, i) => (
+                <tr
+                  key={task.id}
+                  className="hover:bg-white/50 dark:hover:bg-white/5 transition-colors duration-150 animate-row-in"
+                  style={{ animationDelay: `${Math.min(i * 40, 320)}ms` }}
+                >
                   <td className="px-5 py-4">
                     <button
                       onClick={() => onToggleComplete(task)}
-                      className="focus:outline-none focus:ring-2 focus:ring-sky-200 rounded"
+                      className="focus:outline-none focus:ring-2 focus:ring-sky-200 rounded cursor-pointer"
                       aria-label={`Mark as ${task.completed ? 'pending' : 'completed'}`}
                     >
                       {task.completed ? (
-                        <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                        <CheckCircle2 key="done" className="h-5 w-5 text-emerald-500 animate-pop" />
                       ) : (
-                        <div className="h-5 w-5 rounded-full border-2 border-gray-300 dark:border-gray-600 hover:border-sky-400 transition-colors" />
+                        <div
+                          key="todo"
+                          className="h-5 w-5 rounded-full border-2 border-gray-300 dark:border-gray-600 hover:border-sky-400 hover:scale-110 transition-all duration-150 animate-pop"
+                        />
                       )}
                     </button>
                   </td>

@@ -42,7 +42,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500 shadow-lg shadow-sky-500/30">
                 <Zap className="h-5 w-5 text-white" />
               </div>
-              <span className="text-base font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+              <span className="font-display text-base font-extrabold text-gray-900 dark:text-gray-100 tracking-tight">
                 TaskFlow
               </span>
             </div>
@@ -66,21 +66,21 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                 className={({ isActive }) =>
                   `group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
                     isActive
-                      ? 'bg-white/70 dark:bg-white/10 text-sky-700 dark:text-sky-300 shadow-sm shadow-sky-500/10'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200'
+                      ? 'bg-white/70 dark:bg-white/10 text-sky-700 dark:text-sky-300 shadow-md shadow-sky-500/15'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200 hover:translate-x-0.5'
                   }`
                 }
               >
                 {({ isActive }) => (
                   <>
                     {isActive && (
-                      <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-gradient-to-b from-sky-400 to-indigo-500" />
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-gradient-to-b from-sky-400 to-indigo-500 shadow-[0_0_8px_rgba(14,165,233,0.6)]" />
                     )}
                     <item.icon
-                      className={`h-5 w-5 transition-colors ${
+                      className={`h-5 w-5 transition-all duration-200 ${
                         isActive
-                          ? 'text-sky-600 dark:text-sky-400'
-                          : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300'
+                          ? 'text-sky-600 dark:text-sky-400 scale-110'
+                          : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 group-hover:scale-105'
                       }`}
                     />
                     {item.label}

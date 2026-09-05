@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import type { TaskStats } from '../../types/task';
 
 interface AnalyticsProps {
@@ -13,13 +14,16 @@ function BarChart({
 }) {
   return (
     <div className="space-y-3">
-      {data.map((item) => (
+      {data.map((item, i) => (
         <div key={item.label} className="flex items-center gap-3">
-          <span className="text-xs font-medium text-gray-500 w-16 text-right">{item.label}</span>
+          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 w-16 text-right">{item.label}</span>
           <div className="flex-1 h-7 bg-white/50 dark:bg-white/5 rounded-lg overflow-hidden ring-1 ring-inset ring-gray-900/5 dark:ring-white/10">
             <div
-              className={`h-full ${item.color} rounded-lg transition-all duration-700 ease-out flex items-center shadow-sm`}
-              style={{ width: max > 0 ? `${Math.max((item.value / max) * 100, item.value > 0 ? 8 : 0)}%` : '0%' }}
+              className={`h-full ${item.color} rounded-lg animate-bar-grow flex items-center shadow-sm`}
+              style={{
+                width: max > 0 ? `${Math.max((item.value / max) * 100, item.value > 0 ? 8 : 0)}%` : '0%',
+                animationDelay: `${120 + i * 140}ms`,
+              }}
             >
               {item.value > 0 && (
                 <span className="text-xs font-semibold text-white px-2">{item.value}</span>
@@ -70,7 +74,8 @@ function DonutChart({ completed, total }: { completed: number; total: number }) 
             strokeDasharray={circumference}
             strokeDashoffset={offset}
             transform="rotate(-90 60 60)"
-            className="transition-all duration-700 ease-out drop-shadow-[0_0_6px_rgba(14,165,233,0.5)]"
+            className="animate-donut drop-shadow-[0_0_6px_rgba(14,165,233,0.5)]"
+            style={{ '--donut-circ': `${circumference}px`, '--donut-offset': `${offset}px` } as CSSProperties}
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">

@@ -83,7 +83,7 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
-      <div>
+      <div className="animate-fade-up">
         <h2 className="text-2xl font-bold text-gradient">Dashboard</h2>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Overview of your tasks and progress</p>
       </div>
@@ -95,33 +95,44 @@ export function DashboardPage() {
           value={stats?.total ?? 0}
           icon={<ListTodo className="h-5 w-5 text-sky-600" />}
           color="bg-sky-100"
+          delayMs={0}
         />
         <StatCard
           label="Completed"
           value={stats?.completed ?? 0}
           icon={<CheckCircle2 className="h-5 w-5 text-emerald-600" />}
           color="bg-emerald-100"
+          delayMs={80}
         />
         <StatCard
           label="Pending"
           value={stats?.pending ?? 0}
           icon={<Clock className="h-5 w-5 text-amber-600" />}
           color="bg-amber-100"
+          delayMs={160}
         />
         <StatCard
           label="Completion Rate"
-          value={`${completionPct}%`}
+          value={completionPct}
+          suffix="%"
           icon={<TrendingUp className="h-5 w-5 text-violet-600" />}
           color="bg-violet-100"
           subtitle={stats && stats.total > 0 ? `${stats.completed} of ${stats.total} tasks` : 'No tasks yet'}
+          delayMs={240}
         />
       </div>
 
       {/* Analytics */}
-      {stats && stats.total > 0 && <Analytics stats={stats} />}
+      {stats && stats.total > 0 && (
+        <div className="animate-fade-up" style={{ animationDelay: '120ms' }}>
+          <Analytics stats={stats} />
+        </div>
+      )}
 
       {/* Recent Tasks */}
-      <RecentTasks tasks={recentTasks} />
+      <div className="animate-fade-up" style={{ animationDelay: '200ms' }}>
+        <RecentTasks tasks={recentTasks} />
+      </div>
     </div>
   );
 }

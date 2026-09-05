@@ -43,14 +43,19 @@ export function RecentTasks({ tasks }: RecentTasksProps) {
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Recent Tasks</h3>
         <Link
           to="/tasks"
-          className="text-xs font-medium text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 flex items-center gap-1 transition-colors"
+          className="group text-xs font-medium text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 flex items-center gap-1 transition-colors"
         >
-          View all <ArrowRight className="h-3 w-3" />
+          View all
+          <ArrowRight className="h-3 w-3 transition-transform duration-200 group-hover:translate-x-0.5" />
         </Link>
       </div>
       <div className="divide-y divide-gray-900/5 dark:divide-white/10">
-        {tasks.map((task) => (
-          <div key={task.id} className="flex items-center gap-3 px-6 py-3 hover:bg-white/50 dark:hover:bg-white/5 transition-colors">
+        {tasks.map((task, i) => (
+          <div
+            key={task.id}
+            className="flex items-center gap-3 px-6 py-3 hover:bg-white/50 dark:hover:bg-white/5 hover:translate-x-0.5 transition-all duration-200 animate-fade-up"
+            style={{ animationDelay: `${Math.min(i * 60, 300)}ms` }}
+          >
             {task.completed ? (
               <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
             ) : (

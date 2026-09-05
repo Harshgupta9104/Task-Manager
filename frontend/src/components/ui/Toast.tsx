@@ -34,7 +34,9 @@ export function ToastContainer({ toasts, onRemove }: ToastContainerProps) {
         return (
           <div
             key={toast.id}
-            className={`glass-strong flex items-start gap-3 rounded-xl px-4 py-3 animate-slide-in-right ${styles[toast.type]}`}
+            className={`glass-strong flex items-start gap-3 rounded-xl px-4 py-3 ${
+              toast.leaving ? 'animate-slide-out-right' : 'animate-slide-in-right'
+            } ${styles[toast.type]}`}
           >
             <Icon className={`h-5 w-5 mt-0.5 shrink-0 ${iconColors[toast.type]}`} />
             <p className="text-sm font-medium flex-1">{toast.message}</p>

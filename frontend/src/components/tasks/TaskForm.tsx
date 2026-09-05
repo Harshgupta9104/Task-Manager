@@ -91,7 +91,8 @@ export function TaskForm({ open, task, onSubmit, onClose }: TaskFormProps) {
       <div className="relative glass-strong rounded-2xl w-full max-w-lg animate-zoom-in">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-900/5 dark:border-white/10">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+            <span className="flex h-7 w-1 rounded-full bg-gradient-to-b from-sky-400 to-indigo-500" />
             {isEditing ? 'Edit Task' : 'Create Task'}
           </h2>
           <button
@@ -155,10 +156,10 @@ export function TaskForm({ open, task, onSubmit, onClose }: TaskFormProps) {
                   key={opt.value}
                   type="button"
                   onClick={() => setPriority(opt.value)}
-                  className={`flex-1 px-3 py-2 text-sm font-medium rounded-xl border transition-all ${
+                  className={`flex-1 px-3 py-2 text-sm font-medium rounded-xl border transition-all duration-150 active:scale-95 ${
                     priority === opt.value
-                      ? opt.selected + ' shadow-sm'
-                      : 'glass-input text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                      ? opt.selected + ' shadow-md scale-[1.02]'
+                      : 'glass-input text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:-translate-y-0.5'
                   }`}
                 >
                   {opt.label}

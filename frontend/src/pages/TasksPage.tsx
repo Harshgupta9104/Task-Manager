@@ -158,7 +158,7 @@ export function TasksPage() {
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between animate-fade-up">
         <div>
           <h2 className="text-2xl font-bold text-gradient">Tasks</h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">

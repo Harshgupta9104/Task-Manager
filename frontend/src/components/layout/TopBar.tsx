@@ -8,7 +8,7 @@ interface TopBarProps {
 
 export function TopBar({ onMenuClick, title }: TopBarProps) {
   return (
-    <header className="sticky top-0 z-30 border-b border-gray-900/5 dark:border-white/10 bg-white/50 dark:bg-slate-950/40 backdrop-blur-xl backdrop-saturate-150">
+    <header className="sticky top-0 z-30 border-b border-gray-900/5 dark:border-white/10 bg-white/55 dark:bg-slate-950/45 backdrop-blur-xl backdrop-saturate-150 animate-fade-down">
       <div className="flex h-16 items-center gap-4 px-4 sm:px-6">
         <button
           onClick={onMenuClick}

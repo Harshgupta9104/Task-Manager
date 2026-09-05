@@ -6,9 +6,9 @@ export function NotFoundPage() {
   useDocumentTitle('Page Not Found');
 
   return (
-    <div className="flex flex-col items-center justify-center py-24 text-center max-w-md mx-auto">
+    <div className="flex flex-col items-center justify-center py-24 text-center max-w-md mx-auto animate-fade-up">
       <div className="flex h-20 w-20 items-center justify-center rounded-full glass mb-6">
-        <span className="text-4xl font-bold text-gray-300 dark:text-gray-500">404</span>
+        <span className="text-4xl font-bold text-gradient">404</span>
       </div>
       <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Page not found</h2>
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">

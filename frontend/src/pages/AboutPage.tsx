@@ -28,7 +28,7 @@ export function AboutPage() {
   return (
     <div className="space-y-8 max-w-3xl mx-auto">
       {/* Header */}
-      <div>
+      <div className="animate-fade-up">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
           About <span className="text-gradient">TaskFlow</span>
         </h2>
@@ -36,7 +36,7 @@ export function AboutPage() {
       </div>
 
       {/* Hero Card */}
-      <div className="glass rounded-2xl p-8">
+      <div className="glass rounded-2xl p-8 animate-fade-up" style={{ animationDelay: '60ms' }}>
         <div className="flex items-center gap-4 mb-6">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-400 to-indigo-500 shadow-lg shadow-sky-500/30">
             <Zap className="h-7 w-7 text-white" />
@@ -54,7 +54,7 @@ export function AboutPage() {
       </div>
 
       {/* Creator */}
-      <div className="glass rounded-2xl p-6">
+      <div className="glass rounded-2xl p-6 animate-fade-up" style={{ animationDelay: '120ms' }}>
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Creator</h3>
         <div className="flex items-center gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 text-white font-bold text-lg shadow-md shadow-sky-500/25">
@@ -68,7 +68,7 @@ export function AboutPage() {
       </div>
 
       {/* Tech Stack */}
-      <div className="glass rounded-2xl p-6">
+      <div className="glass rounded-2xl p-6 animate-fade-up" style={{ animationDelay: '180ms' }}>
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
           <Code2 className="h-4 w-4 text-sky-600 dark:text-sky-400" />
           Tech Stack
@@ -87,7 +87,7 @@ export function AboutPage() {
       </div>
 
       {/* Features */}
-      <div className="glass rounded-2xl p-6">
+      <div className="glass rounded-2xl p-6 animate-fade-up" style={{ animationDelay: '240ms' }}>
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Features</h3>
         <ul className="space-y-2">
           {features.map((feature) => (
@@ -100,7 +100,7 @@ export function AboutPage() {
       </div>
 
       {/* Links */}
-      <div className="glass rounded-2xl p-6">
+      <div className="glass rounded-2xl p-6 animate-fade-up" style={{ animationDelay: '300ms' }}>
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Links</h3>
         <div className="flex flex-wrap gap-3">
           <a

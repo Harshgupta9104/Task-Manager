@@ -1,7 +1,5 @@
 export function Skeleton({ className = '' }: { className?: string }) {
-  return (
-    <div className={`animate-pulse rounded-lg bg-white/60 dark:bg-white/10 ${className}`} />
-  );
+  return <div className={`shimmer rounded-lg ${className}`} />;
 }
 
 export function CardSkeleton() {
