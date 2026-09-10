@@ -83,7 +83,7 @@ export async function deleteTask(id: number): Promise<void> {
   });
 }
 
-// Stats
-export async function getTaskStats(): Promise<TaskStats> {
-  return request<TaskStats>('/tasks/stats');
-}
+// // Stats
+// export async function getTaskStats(): Promise<TaskStats> {
+//   return request<TaskStats>('/tasks/stats');
+// }
