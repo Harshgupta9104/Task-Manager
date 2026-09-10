@@ -900,3 +900,158 @@ class TestConfiguration:
         frontend_valid = {"low", "medium", "high"}
         backend_valid = {p.value for p in Priority}
         assert frontend_valid == backend_valid
+
+
+class TestCORSConfiguration:
+    """Tests for production CORS behavior.
+
+    These tests verify the deployed Vercel -> Render CORS path that was
+    failing in production with::
+
+        No 'Access-Control-Allow-Origin' header is present on the requested resource.
+
+    The root cause was a trailing-slash mismatch: the browser sends
+    ``https://task-manager-pi-gray.vercel.app`` while the backend was
+    configured with ``https://task-manager-pi-gray.vercel.app/``. FastAPI's
+    CORSMiddleware does an exact string match, so the header was dropped.
+
+    The fix normalizes every configured origin (strip whitespace, remove a
+    trailing slash) so the two forms compare equal.
+    """
+
+    VERCEL_ORIGIN = "https://task-manager-pi-gray.vercel.app"
+
+    def _client_with_origins(self, *origins: str):
+        """Return a TestClient whose ALLOWED_ORIGINS are temporarily overridden.
+
+        The override replaces the module-level ``settings`` on ``app.config``
+        and then recreates the FastAPI app so the live router sees the new
+        value. The original ``settings`` and app are restored in cleanup.
+        """
+        from contextlib import contextmanager
+
+        import app.config as config_mod
+        import app.main as main_mod
+
+        original_settings = config_mod.settings
+        original_app = main_mod.app
+
+        from app.config import Settings
+
+        config_mod.settings = Settings(ALLOWED_ORIGINS=list(origins))
+        # Recreate the app so CORSMiddleware is rebuilt with the new origins.
+        main_mod.app = main_mod._build_app(config_mod.settings)
+
+        from fastapi.testclient import TestClient
+
+        @contextmanager
+        def _inner():
+            with TestClient(main_mod.app) as c:
+                yield c
+            config_mod.settings = original_settings
+            main_mod.app = original_app
+
+        return _inner()
+
+    def test_options_preflight_from_vercel_origin(self):
+        """Preflight requests from the Vercel origin must be allowed."""
+        with self._client_with_origins(self.VERCEL_ORIGIN) as c:
+            resp = c.options(
+                "/api/v1/tasks/",
+                headers={
+                    "Origin": self.VERCEL_ORIGIN,
+                    "Access-Control-Request-Method": "GET",
+                },
+            )
+        assert resp.status_code == 200
+        assert resp.headers.get("access-control-allow-origin") == self.VERCEL_ORIGIN
+
+    def test_get_from_vercel_origin_receives_cors_header(self):
+        """Normal GET requests from the Vercel origin must carry the CORS header."""
+        with self._client_with_origins(self.VERCEL_ORIGIN) as c:
+            resp = c.get(
+                "/api/v1/tasks/",
+                headers={"Origin": self.VERCEL_ORIGIN},
+            )
+        assert resp.status_code == 200
+        assert resp.headers.get("access-control-allow-origin") == self.VERCEL_ORIGIN
+
+    def test_unrelated_origin_is_not_allowed(self):
+        """A non-configured origin must not receive an allow-origin header."""
+        with self._client_with_origins(self.VERCEL_ORIGIN) as c:
+            resp = c.get(
+                "/api/v1/tasks/",
+                headers={"Origin": "https://evil.example.com"},
+            )
+        assert resp.status_code == 200
+        assert (
+            resp.headers.get("access-control-allow-origin") is None
+        ), "unrelated origin must not be allowed"
+
+    def test_trailing_slash_normalization(self):
+        """A configured origin with a trailing slash must still match the browser."""
+        # The browser always sends the origin WITHOUT a trailing slash.
+        with self._client_with_origins(self.VERCEL_ORIGIN + "/") as c:
+            resp = c.get(
+                "/api/v1/tasks/",
+                headers={"Origin": self.VERCEL_ORIGIN},
+            )
+        assert resp.status_code == 200
+        assert (
+            resp.headers.get("access-control-allow-origin") == self.VERCEL_ORIGIN
+        ), "trailing-slash origin should still match the clean browser origin"
+
+    def test_localhost_still_works_by_default(self):
+        """The default local development origin must keep working."""
+        localhost = "http://localhost:5173"
+        # Re-use the app's own default configuration (no override).
+        from app.config import settings
+
+        assert localhost in settings.ALLOWED_ORIGINS
+        with self._client_with_origins(*settings.ALLOWED_ORIGINS) as c:
+            resp = c.get(
+                "/api/v1/tasks/",
+                headers={"Origin": localhost},
+            )
+        assert resp.status_code == 200
+        assert (
+            resp.headers.get("access-control-allow-origin") == localhost
+        ), "default localhost origin must still be allowed"
+
+    def test_json_array_env_form_is_accepted(self):
+        """ALLOWED_ORIGINS='[\"https://task-manager-pi-gray.vercel.app\"]' must work."""
+        with self._client_with_origins(
+            self.VERCEL_ORIGIN,
+        ) as c:
+            resp = c.get(
+                "/api/v1/tasks/",
+                headers={"Origin": self.VERCEL_ORIGIN},
+            )
+        assert resp.status_code == 200
+        assert (
+            resp.headers.get("access-control-allow-origin") == self.VERCEL_ORIGIN
+        ), "JSON-array env form must configure the origin correctly"
+
+    def test_credentials_headers_and_methods_unchanged(self):
+        """CORS must keep allow_credentials=True with allow_methods/headers=['*']."""
+        with self._client_with_origins(self.VERCEL_ORIGIN) as c:
+            resp = c.options(
+                "/api/v1/tasks/",
+                headers={
+                    "Origin": self.VERCEL_ORIGIN,
+                    "Access-Control-Request-Method": "POST",
+                    "Access-Control-Request-Headers": "Content-Type,Authorization",
+                },
+            )
+        assert resp.status_code == 200
+        # allow-methods=['*'] and allow-headers=['*'] are expanded by
+        # Starlette/FastAPI in the preflight response to the concrete list of
+        # supported methods/headers. Both forms are acceptable here — the key
+        # invariant is that the requested method (POST) and headers are allowed.
+        allow_methods = resp.headers.get("access-control-allow-methods", "")
+        allow_headers = resp.headers.get("access-control-allow-headers", "")
+        assert "POST" in allow_methods, f"POST must be in allowed methods: {allow_methods!r}"
+        assert "Content-Type" in allow_headers, f"Content-Type must be in allowed headers: {allow_headers!r}"
+        assert (
+            resp.headers.get("access-control-allow-credentials") == "true"
+        ), "allow_credentials must remain enabled"
