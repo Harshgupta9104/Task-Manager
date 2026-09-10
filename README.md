@@ -27,6 +27,7 @@ A full-stack task management application with a **FastAPI** backend and **React*
   - [User Journey](#user-journey)
 - [API Endpoints](#-api-endpoints)
 - [Frontend Pages](#-frontend-pages)
+- [Deployment](#-deployment)
 - [Testing](#-testing)
 - [Architecture](#-architecture)
 - [License](#-license)
@@ -522,6 +523,41 @@ The application uses a single SQLite database with one table:
 | Tasks | `/tasks` | Full task list with CRUD operations |
 | About | `/about` | Application information |
 | 404 | `*` | Not found page |
+
+---
+
+## 🚀 Deployment
+
+### Quick Start
+
+For detailed deployment instructions, see [**DEPLOYMENT_GUIDE.md**](docs/DEPLOYMENT_GUIDE.md).
+
+### Key Points
+
+**Frontend on Vercel + Backend on Render:**
+
+1. **Set `VITE_API_URL` in Vercel environment variables**
+   - Without this, 404 errors on every API call
+   - Example: `https://task-manager-y9as.onrender.com/api/v1`
+
+2. **Set `ALLOWED_ORIGINS` in Render environment variables**
+   - Must match your Vercel frontend URL exactly
+   - Example: `https://task-manager-pi-gray.vercel.app`
+
+3. **Ensure migrations run on Render**
+   - Build command should include: `alembic upgrade head`
+   - This creates the database tables
+
+**Common Issue: 404 Errors After Deployment**
+
+This typically means `VITE_API_URL` is not set during the Vercel build. The frontend doesn't know where the backend is located.
+
+**Fix:**
+1. Add `VITE_API_URL` to Vercel environment variables
+2. Redeploy on Vercel
+3. Check browser Network tab to verify API calls go to correct URL
+
+See [DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) for complete setup.
 
 ---
 
