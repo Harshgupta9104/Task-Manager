@@ -1,14 +1,23 @@
-import type { Task, TaskListResponse, TaskStats, TaskCreate, TaskUpdate } from '../types/task';
+import type { Task, TaskListResponse, TaskStats, TaskCreate, TaskUpdate, Priority } from '../types/task';
 
-const API_BASE = '/api/v1';
+/**
+ * Single authoritative location for API URL construction.
+ *
+ * The base URL comes from VITE_API_URL (set in frontend/.env). When unset
+ * (e.g. local dev without an .env), falls back to the same-origin path that
+ * the Vite dev server proxies to the backend.
+ */
+const API_BASE: string = import.meta.env.VITE_API_URL || '/api/v1';
 
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
+  // `options` may carry an AbortSignal; headers default to JSON but can be
+  // overridden by the caller.
   const response = await fetch(`${API_BASE}${url}`, {
+    ...options,
     headers: {
       'Content-Type': 'application/json',
       ...options?.headers,
     },
-    ...options,
   });
 
   if (!response.ok) {
@@ -24,13 +33,16 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 }
 
 // Tasks
-export async function getTasks(params?: {
-  skip?: number;
-  limit?: number;
-  completed?: boolean | null;
-  priority?: string | null;
-  search?: string | null;
-}): Promise<TaskListResponse> {
+export async function getTasks(
+  params?: {
+    skip?: number;
+    limit?: number;
+    completed?: boolean | null;
+    priority?: Priority | null;
+    search?: string | null;
+  },
+  signal?: AbortSignal,
+): Promise<TaskListResponse> {
   const searchParams = new URLSearchParams();
   if (params?.skip !== undefined) searchParams.set('skip', String(params.skip));
   if (params?.limit !== undefined) searchParams.set('limit', String(params.limit));
@@ -44,7 +56,7 @@ export async function getTasks(params?: {
     searchParams.set('search', params.search.trim());
   }
   const query = searchParams.toString();
-  return request<TaskListResponse>(`/tasks/${query ? `?${query}` : ''}`);
+  return request<TaskListResponse>(`/tasks/${query ? `?${query}` : ''}`, { signal });
 }
 
 export async function getTask(id: number): Promise<Task> {
@@ -74,10 +86,4 @@ export async function deleteTask(id: number): Promise<void> {
 // Stats
 export async function getTaskStats(): Promise<TaskStats> {
   return request<TaskStats>('/tasks/stats');
-}
-
-// Health
-export async function getHealth(): Promise<{ status: string; app: string; version: string }> {
-  const response = await fetch('/');
-  return response.json();
 }

@@ -10,6 +10,7 @@ from app.schemas import (
     TaskCreate,
     TaskListResponse,
     TaskResponse,
+    TaskStatsResponse,
     TaskUpdate,
 )
 from app.services import (
@@ -74,9 +75,10 @@ def list_tasks(
 
 @router.get(
     "/stats",
+    response_model=TaskStatsResponse,
     summary="Get task statistics",
 )
-def task_stats(db: Session = Depends(get_db)) -> dict:
+def task_stats(db: Session = Depends(get_db)) -> TaskStatsResponse:
     """Get statistics about tasks (total, completed, pending)."""
     return get_task_stats(db=db)
 

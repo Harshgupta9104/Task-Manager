@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { ListTodo, CheckCircle2, Clock, TrendingUp } from 'lucide-react';
 import { StatCard } from '../components/dashboard/StatCard';
 import { RecentTasks } from '../components/dashboard/RecentTasks';
@@ -15,21 +15,11 @@ export function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = useCallback(async () => {
-    try {
-      const [statsData, tasksData] = await Promise.all([
-        getTaskStats(),
-        getTasks({ limit: 5, skip: 0 }),
-      ]);
-      setStats(statsData);
-      setRecentTasks(tasksData.tasks);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load dashboard');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // Single authoritative fetch path. Retry bumps `reloadToken`, which
+  // re-runs this effect — the same pattern useTasks uses — so there is no
+  // duplicated loader and no setState traced to the effect body (lint-clean).
+  // The `ignore` flag makes StrictMode's double-invoke harmless.
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
     let ignore = false;
@@ -56,7 +46,7 @@ export function DashboardPage() {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [reloadToken]);
 
   if (loading) return <DashboardSkeleton />;
 
@@ -67,7 +57,7 @@ export function DashboardPage() {
           <p className="text-sm font-medium text-red-800 dark:text-red-300 mb-1">Failed to load dashboard</p>
           <p className="text-xs text-red-600 dark:text-red-400 mb-4">{error}</p>
           <button
-            onClick={fetchData}
+            onClick={() => setReloadToken((t) => t + 1)}
             className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors"
           >
             Retry

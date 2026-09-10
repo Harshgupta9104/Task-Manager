@@ -17,6 +17,13 @@ class Task(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # NOTE (known Phase 0 gap): priority is stored as a plain VARCHAR with
+    # no DB-level CHECK constraint. Only application-level validation
+    # (the shared Priority enum in Pydantic schemas) prevents invalid
+    # values, so a direct DB write could persist an arbitrary string.
+    # A CHECK (priority IN ('low', 'medium', 'high')) constraint must be
+    # added in the future schema/migration work (Phase 0 forbids schema
+    # changes), ideally by switching this column to sa.Enum(Priority).
     priority: Mapped[Priority] = mapped_column(
         String(10),
         default=Priority.MEDIUM,

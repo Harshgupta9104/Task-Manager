@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.enums import Priority
 from app.models import Task
-from app.schemas import TaskCreate, TaskUpdate
+from app.schemas import TaskCreate, TaskStatsResponse, TaskUpdate
 
 
 def create_task(db: Session, task_data: TaskCreate) -> Task:
@@ -59,8 +59,15 @@ def get_tasks(
     # 4. Total matching
     total = query.count()
 
-    # 5. Order and paginate
-    tasks = query.order_by(Task.created_at.desc()).offset(skip).limit(limit).all()
+    # 5. Order deterministically, then paginate. Ordering is applied before
+    # OFFSET/LIMIT so pages are stable; id DESC breaks ties between tasks
+    # that share the same created_at.
+    tasks = (
+        query.order_by(Task.created_at.desc(), Task.id.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
     return tasks, total
 
@@ -92,7 +99,7 @@ def delete_task(db: Session, task_id: int) -> bool:
     return True
 
 
-def get_task_stats(db: Session) -> dict:
+def get_task_stats(db: Session) -> TaskStatsResponse:
     """Get task statistics (total, completed, pending, by priority).
 
     Uses a single aggregate query with CASE expressions to reduce
@@ -116,11 +123,11 @@ def get_task_stats(db: Session) -> dict:
 
     total = result.total or 0
     completed = result.completed or 0
-    return {
-        "total": total,
-        "completed": completed,
-        "pending": total - completed,
-        "high": result.high or 0,
-        "medium": result.medium or 0,
-        "low": result.low or 0,
-    }
+    return TaskStatsResponse(
+        total=total,
+        completed=completed,
+        pending=total - completed,
+        high=result.high or 0,
+        medium=result.medium or 0,
+        low=result.low or 0,
+    )

@@ -25,11 +25,11 @@ interface TaskTableProps {
   page: number;
   pageSize: number;
   filter: boolean | null;
-  priorityFilter: string | null;
+  priorityFilter: Priority | null;
   search: string;
   onPageChange: (page: number) => void;
   onFilterChange: (filter: boolean | null) => void;
-  onPriorityFilterChange: (priority: string | null) => void;
+  onPriorityFilterChange: (priority: Priority | null) => void;
   onSearchChange: (search: string) => void;
   onRefresh: () => void;
   onEdit: (task: Task) => void;
@@ -108,7 +108,7 @@ export function TaskTable({
             <div className="relative">
               <select
                 value={priorityFilter ?? 'all'}
-                onChange={(e) => onPriorityFilterChange(e.target.value === 'all' ? null : e.target.value)}
+                onChange={(e) => onPriorityFilterChange(e.target.value === 'all' ? null : (e.target.value as Priority))}
                 className={`px-3 pr-9 py-2 appearance-none cursor-pointer ${controlClass}`}
               >
                 <option value="all">All Priorities</option>

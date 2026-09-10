@@ -1,22 +1,38 @@
 """Pydantic schemas for request validation and response serialization."""
 
 from datetime import datetime
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, field_validator
 
 from app.enums import Priority
+
+
+def _normalize_title(value: str) -> str:
+    """Trim surrounding whitespace; reject titles that are empty after trimming."""
+    title = value.strip()
+    if not title:
+        raise ValueError("Title must not be empty or whitespace-only")
+    return title
+
+
+# Shared task-title definition so create and update enforce identical rules.
+TitleField = Annotated[
+    str,
+    Field(
+        min_length=1,
+        max_length=255,
+        description="The title of the task",
+        examples=["Buy groceries"],
+    ),
+    AfterValidator(_normalize_title),
+]
 
 
 class TaskCreate(BaseModel):
     """Schema for creating a new task."""
 
-    title: str = Field(
-        ...,
-        min_length=1,
-        max_length=255,
-        description="The title of the task",
-        examples=["Buy groceries"],
-    )
+    title: TitleField
     description: str | None = Field(
         default=None,
         max_length=5000,
@@ -37,13 +53,21 @@ class TaskCreate(BaseModel):
 class TaskUpdate(BaseModel):
     """Schema for updating an existing task. All fields are optional."""
 
-    title: str | None = Field(
-        default=None,
-        min_length=1,
-        max_length=255,
-        description="The title of the task",
-        examples=["Buy groceries"],
-    )
+    title: TitleField | None = None
+
+    @field_validator("title")
+    @classmethod
+    def reject_null_title(cls, value: str | None) -> str | None:
+        """Reject an explicit JSON null title.
+
+        Omitting `title` means "no change"; an explicit null would blank a
+        required, non-nullable column, so it is rejected at the schema
+        boundary instead of failing later in the database layer.
+        """
+        if value is None:
+            raise ValueError("Title must not be null")
+        return value
+
     description: str | None = Field(
         default=None,
         max_length=5000,
@@ -80,6 +104,17 @@ class TaskListResponse(BaseModel):
 
     tasks: list[TaskResponse]
     total: int
+
+
+class TaskStatsResponse(BaseModel):
+    """Schema for task statistics responses."""
+
+    total: int
+    completed: int
+    pending: int
+    high: int
+    medium: int
+    low: int
 
 
 class ErrorResponse(BaseModel):

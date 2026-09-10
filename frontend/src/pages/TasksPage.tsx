@@ -1,25 +1,38 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { Plus, ListTodo } from 'lucide-react';
 import { TaskTable } from '../components/tasks/TaskTable';
 import { TaskForm } from '../components/tasks/TaskForm';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 
-import { getTasks, createTask, updateTask, deleteTask } from '../services/api';
 import type { Task, TaskCreate, TaskUpdate } from '../types/task';
+import { useTasks } from '../hooks/useTasks';
 import { useToast } from '../hooks/useToast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function TasksPage() {
   useDocumentTitle('Tasks');
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(0);
-  const [filter, setFilter] = useState<boolean | null>(null);
-  const [priorityFilter, setPriorityFilter] = useState<string | null>(null);
-  const [search, setSearch] = useState('');
-  const pageSize = 10;
+
+  // All task-list data, query state, and mutations come from the hook.
+  const {
+    tasks,
+    total,
+    loading,
+    error,
+    page,
+    pageSize,
+    filter,
+    priorityFilter,
+    searchInput,
+    setPage,
+    setFilter,
+    setPriorityFilter,
+    setSearchInput,
+    refresh,
+    createTask,
+    updateTask,
+    deleteTask,
+    toggleComplete,
+  } = useTasks();
 
   // Form state
   const [formOpen, setFormOpen] = useState(false);
@@ -31,76 +44,11 @@ export function TasksPage() {
 
   const { addToast } = useToast();
 
-  const fetchTasks = useCallback(async () => {
-    try {
-      const data = await getTasks({
-        skip: page * pageSize,
-        limit: pageSize,
-        completed: filter,
-        priority: priorityFilter,
-        search: search,
-      });
-      setTasks(data.tasks);
-      setTotal(data.total);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load tasks');
-    } finally {
-      setLoading(false);
-    }
-  }, [page, filter, priorityFilter, search]);
-
-  useEffect(() => {
-    let ignore = false;
-    async function load() {
-      try {
-        const data = await getTasks({
-          skip: page * pageSize,
-          limit: pageSize,
-          completed: filter,
-          priority: priorityFilter,
-          search: search,
-        });
-        if (!ignore) {
-          setTasks(data.tasks);
-          setTotal(data.total);
-          setError(null);
-        }
-      } catch (err) {
-        if (!ignore) {
-          setError(err instanceof Error ? err.message : 'Failed to load tasks');
-        }
-      } finally {
-        if (!ignore) setLoading(false);
-      }
-    }
-    void load();
-    return () => {
-      ignore = true;
-    };
-  }, [page, filter, priorityFilter, search]);
-
-  function handleFilterChange(value: boolean | null) {
-    setFilter(value);
-    setPage(0);
-  }
-
-  function handlePriorityFilterChange(value: string | null) {
-    setPriorityFilter(value);
-    setPage(0);
-  }
-
-  function handleSearchChange(value: string) {
-    setSearch(value);
-    setPage(0);
-  }
-
   async function handleCreate(data: TaskCreate | TaskUpdate) {
     try {
       await createTask(data as TaskCreate);
       addToast('success', 'Task created successfully');
       setFormOpen(false);
-      fetchTasks();
     } catch (err) {
       addToast('error', err instanceof Error ? err.message : 'Failed to create task');
       throw err;
@@ -114,7 +62,6 @@ export function TasksPage() {
       addToast('success', 'Task updated successfully');
       setFormOpen(false);
       setEditingTask(null);
-      fetchTasks();
     } catch (err) {
       addToast('error', err instanceof Error ? err.message : 'Failed to update task');
       throw err;
@@ -128,7 +75,6 @@ export function TasksPage() {
       await deleteTask(deleteTarget.id);
       addToast('success', 'Task deleted');
       setDeleteTarget(null);
-      fetchTasks();
     } catch (err) {
       addToast('error', err instanceof Error ? err.message : 'Failed to delete task');
     } finally {
@@ -138,8 +84,7 @@ export function TasksPage() {
 
   async function handleToggleComplete(task: Task) {
     try {
-      await updateTask(task.id, { completed: !task.completed });
-      fetchTasks();
+      await toggleComplete(task);
     } catch {
       addToast('error', 'Failed to update task');
     }
@@ -182,7 +127,7 @@ export function TasksPage() {
             <p className="text-xs text-red-600 dark:text-red-400">{error}</p>
           </div>
           <button
-            onClick={fetchTasks}
+            onClick={refresh}
             className="px-3 py-1.5 text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
           >
             Retry
@@ -215,12 +160,12 @@ export function TasksPage() {
           pageSize={pageSize}
           filter={filter}
           priorityFilter={priorityFilter}
-          search={search}
+          search={searchInput}
           onPageChange={setPage}
-          onFilterChange={handleFilterChange}
-          onPriorityFilterChange={handlePriorityFilterChange}
-          onSearchChange={handleSearchChange}
-          onRefresh={fetchTasks}
+          onFilterChange={setFilter}
+          onPriorityFilterChange={setPriorityFilter}
+          onSearchChange={setSearchInput}
+          onRefresh={refresh}
           onEdit={handleEdit}
           onDelete={setDeleteTarget}
           onToggleComplete={handleToggleComplete}
