@@ -39,6 +39,7 @@ A full-stack task management application with a **FastAPI** backend and **React*
 - **Full CRUD Operations** — Create, read, update, and delete tasks
 - **Priority Levels** — Set tasks as low, medium, or high priority
 - **Filtering & Pagination** — Filter by completion status and priority
+- **Full-Text Search** — Case-insensitive search across task titles and descriptions
 - **Task Statistics** — Dashboard with total, completed, pending, and priority counts
 - **Modern UI** — React dashboard with responsive design
 - **SQLite Database** — Zero-config database, no external setup required
@@ -68,8 +69,10 @@ A full-stack task management application with a **FastAPI** backend and **React*
 | [TypeScript](https://www.typescriptlang.org/) | Type-safe JavaScript |
 | [Vite](https://vitejs.dev/) | Build tool and dev server |
 | [Tailwind CSS](https://tailwindcss.com/) | Utility-first CSS framework |
-| [React Router](https://reactrouter.com/) | Client-side routing |
+| [React Router 7](https://reactrouter.com/) | Client-side routing |
 | [Lucide React](https://lucide.dev/) | Icon library |
+| [Vitest](https://vitest.dev/) + [Testing Library](https://testing-library.com/) | Frontend unit tests |
+| [Oxlint](https://oxc.rs/docs/guide/usage/linter) | Linting |
 
 ---
 
@@ -512,6 +515,7 @@ The application uses a single SQLite database with one table:
 | `limit` | `int` | `100` | Max tasks to return (max: 500) |
 | `completed` | `bool` | `null` | Filter by completion status |
 | `priority` | `string` | `null` | Filter by priority (low/medium/high) |
+| `search` | `string` | `null` | Case-insensitive search across title and description |
 
 ---
 
@@ -568,6 +572,14 @@ See [DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) for complete setup.
 ```bash
 # From project root with venv activated
 pytest tests/ -v
+```
+
+### Run Frontend Tests
+
+```bash
+# From the frontend directory
+cd frontend
+npm test
 ```
 
 ### Run Specific Test Classes
@@ -637,6 +649,8 @@ pytest tests/test_tasks.py::TestFullCRUDLifecycle -v
 - **Lifespan management:** Modern `lifespan` context manager
 - **Database migrations:** Alembic for schema management
 - **Shared Priority enum:** Single source of truth for priority values
+- **Strict null validation:** `PUT /tasks/{id}` rejects explicit JSON `null` for `title`, `priority`, and `completed` with a `422`, since all three map to `NOT NULL` columns (omitting a field simply means "no change")
+- **Robust title normalization:** Titles are trimmed and empty/whitespace-only titles are rejected on both create and update
 - **Global error handling:** Catches unexpected errors without leaking internals
 
 ---

@@ -121,13 +121,5 @@ export async function deleteTask(id: number): Promise<void> {
 
 // Stats
 export async function getTaskStats(): Promise<TaskStats> {
-  // Return default stats object without calling /tasks/stats endpoint
-  return {
-    total: 0,
-    completed: 0,
-    pending: 0,
-    high: 0,
-    medium: 0,
-    low: 0,
-  };
+  return request<TaskStats>('/tasks/stats');
 }

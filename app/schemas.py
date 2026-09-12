@@ -84,6 +84,20 @@ class TaskUpdate(BaseModel):
         description="Whether the task is completed",
     )
 
+    @field_validator("priority", "completed")
+    @classmethod
+    def reject_null_non_nullable_fields(cls, value, info):
+        """Reject explicit JSON null for priority/completed.
+
+        Both map to NOT NULL columns. Omitting the field means "no change";
+        an explicit null passes the ``X | None`` annotation but would fail
+        at the database layer as an unhandled 500, so it is rejected here
+        as a 422 — the same rule ``title`` already follows.
+        """
+        if value is None:
+            raise ValueError(f"{info.field_name} must not be null")
+        return value
+
 
 class TaskResponse(BaseModel):
     """Schema for task responses."""

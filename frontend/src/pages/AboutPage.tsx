@@ -5,6 +5,8 @@ const techStack = [
   { name: 'React 19', desc: 'UI framework' },
   { name: 'TypeScript', desc: 'Type safety' },
   { name: 'Tailwind CSS v4', desc: 'Styling' },
+  { name: 'Vite 8', desc: 'Build tool' },
+  { name: 'React Router 7', desc: 'Client-side routing' },
   { name: 'FastAPI', desc: 'Backend API' },
   { name: 'SQLAlchemy', desc: 'ORM' },
   { name: 'SQLite', desc: 'Database' },
@@ -14,8 +16,9 @@ const features = [
   'Create, edit, and delete tasks',
   'Priority levels (low, medium, high)',
   'Completion tracking with toggle',
-  'Dashboard with analytics',
-  'Search and filter capabilities',
+  'Dashboard with live analytics',
+  'Instant search across titles and descriptions',
+  'Filtering and paginated task lists',
   'Responsive design for all devices',
   'Dark mode with animated toggle',
   'Keyboard shortcuts (Escape to close)',
@@ -48,8 +51,10 @@ export function AboutPage() {
         </div>
         <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
           TaskFlow is a full-stack task management application built with modern web technologies.
-          It features a clean, intuitive interface designed to help you stay organized and productive.
-          The app follows a client-server architecture with a FastAPI backend and React frontend.
+          It features a clean, intuitive interface designed to help you stay organized and productive —
+          create tasks, track priorities, search your list instantly, and monitor progress from a live
+          analytics dashboard. The app follows a client-server architecture with a FastAPI backend,
+          a SQLAlchemy ORM layer, and a React frontend communicating over a REST API.
         </p>
       </div>
 
@@ -58,11 +63,11 @@ export function AboutPage() {
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Creator</h3>
         <div className="flex items-center gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 text-white font-bold text-lg shadow-md shadow-sky-500/25">
-            TF
+            HG
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">TaskFlow Team</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Built with passion for productivity</p>
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Harsh Gupta</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Full-stack developer · Built with passion for productivity</p>
           </div>
         </div>
       </div>
@@ -122,7 +127,9 @@ export function AboutPage() {
             ReDoc
           </a>
           <a
-            href="#"
+            href="https://github.com/Harshgupta9104/Task-Manager"
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 glass-input rounded-xl hover:bg-white/70 dark:hover:bg-white/15 transition-colors"
           >
             <GitFork className="h-4 w-4" />

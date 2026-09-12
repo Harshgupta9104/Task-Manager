@@ -1,1 +1,24 @@
-Generic single-database configuration.
+# Alembic Migrations
+
+Database migrations for the Task Management API (SQLAlchemy + Alembic, SQLite).
+
+## Usage
+
+Run all commands from the **project root** (where `alembic.ini` lives), with the virtual environment activated:
+
+```bash
+alembic upgrade head                              # Apply all pending migrations
+alembic current                                   # Show current revision
+alembic history                                   # List migration history
+alembic downgrade -1                              # Roll back one revision
+alembic revision --autogenerate -m "description"  # Generate a migration from model changes
+alembic revision -m "description"                 # Create an empty migration template
+```
+
+## Migrations
+
+| Revision | Description |
+|---|---|
+| `44840f774604` | Initial `tasks` table |
+
+> **Note:** Never use `Base.metadata.create_all()` to create tables — always use Alembic so schema changes are tracked and reproducible.
