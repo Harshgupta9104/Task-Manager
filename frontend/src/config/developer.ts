@@ -67,6 +67,22 @@ export const developer = {
   ] satisfies SocialLink[],
 };
 
+// ── Verifiable hero metrics (trust signals) ─────────────────────────
+// Every number here is checked against the repository, not invented:
+// tests = pytest suite + Vitest suite; endpoints = routes in app/;
+// pages = routes in frontend/src/App.tsx.
+export interface HeroStat {
+  label: string;
+  value: number;
+  suffix?: string;
+}
+
+export const heroStats: HeroStat[] = [
+  { label: 'Automated tests', value: 140, suffix: '+' },
+  { label: 'REST endpoints', value: 8 },
+  { label: 'App pages', value: 5 },
+];
+
 // ── Technology stack (verified against this repository) ─────────────
 export interface TechItem {
   name: string;
@@ -147,6 +163,36 @@ export const whyTaskFlow = {
     'Keep the whole stack healthy with automated tests and CI',
   ],
 };
+
+// ── The journey (real milestones from the project's git history) ────
+export interface Milestone {
+  date: string;
+  title: string;
+  desc: string;
+}
+
+export const journey: Milestone[] = [
+  {
+    date: 'Aug 2026',
+    title: 'First commit',
+    desc: 'TaskFlow started as a full-stack skeleton: FastAPI backend, React frontend, and the first task model.',
+  },
+  {
+    date: 'Sep 2026',
+    title: 'Design system built',
+    desc: 'The glass-morphism visual language, aurora background, and motion design that define TaskFlow today.',
+  },
+  {
+    date: 'Sep 2026',
+    title: 'Shipped to production',
+    desc: 'Deployed on Vercel + Render with CI, migrations, and the CORS/404 deployment lessons solved for good.',
+  },
+  {
+    date: 'Sep 2026',
+    title: 'Hardening & docs',
+    desc: 'Strict input validation, audit reports, refreshed documentation, and the in-app Developer page.',
+  },
+];
 
 // ── Engineering highlights (verified features of this repository) ───
 export interface Highlight {

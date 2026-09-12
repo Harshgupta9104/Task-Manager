@@ -425,7 +425,7 @@ App.tsx (BrowserRouter)
     │                 • paginated task table (row stagger, confirm dialogs)
     │                 • create/edit modal form
     ├── /about      → AboutPage        (product overview, tech grid, links)
-    ├── /developer  → DeveloperPage    (hero, tech stack, highlights, links)
+    ├── /developer  → DeveloperPage    (hero + metrics, stack, journey, highlights, links)
     └── *           → NotFoundPage
 ```
 

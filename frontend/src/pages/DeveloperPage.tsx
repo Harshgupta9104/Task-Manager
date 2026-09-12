@@ -2,17 +2,31 @@ import { ExternalLink, Heart, Zap } from 'lucide-react';
 import {
   developer,
   engineeringHighlights,
+  heroStats,
+  journey,
   projectLinks,
   techStack,
   whyTaskFlow,
 } from '../config/developer';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useCountUp } from '../hooks/useCountUp';
+
+/** Animated trust-signal metric (reuses the dashboard's count-up hook). */
+function HeroStatValue({ value, suffix }: { value: number; suffix?: string }) {
+  const animated = useCountUp(value);
+  return (
+    <span className="font-display text-2xl font-extrabold text-gray-900 dark:text-gray-100 tracking-tight tabular-nums">
+      {animated}
+      {suffix}
+    </span>
+  );
+}
 
 /** Section heading with a short supporting description. */
-function SectionHeading({ title, desc }: { title: string; desc?: string }) {
+function SectionHeading({ id, title, desc }: { id: string; title: string; desc?: string }) {
   return (
     <div className="mb-5">
-      <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{title}</h3>
+      <h3 id={id} className="text-lg font-bold text-gray-900 dark:text-gray-100">{title}</h3>
       {desc && (
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 max-w-2xl">{desc}</p>
       )}
@@ -67,7 +81,7 @@ export function DeveloperPage() {
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 glass-input rounded-xl hover:bg-white/70 dark:hover:bg-white/15 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 glass-input rounded-xl hover:bg-white/70 dark:hover:bg-white/15 hover:-translate-y-0.5 transition-all duration-200"
                   >
                     <link.icon className="h-4 w-4" aria-hidden="true" />
                     {link.label}
@@ -76,6 +90,27 @@ export function DeveloperPage() {
                 </li>
               ))}
             </ul>
+
+            {/* Verifiable trust signals (counts come from the repo itself) */}
+            <dl
+              className="grid grid-cols-3 gap-3 mt-6 pt-6 border-t border-gray-900/5 dark:border-white/10"
+              aria-label="Project metrics"
+            >
+              {heroStats.map((stat, i) => (
+                <div
+                  key={stat.label}
+                  className="flex flex-col animate-fade-up"
+                  style={{ animationDelay: `${300 + i * 60}ms` }}
+                >
+                  <dd className="order-1">
+                    <HeroStatValue value={stat.value} suffix={stat.suffix} />
+                  </dd>
+                  <dt className="order-2 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {stat.label}
+                  </dt>
+                </div>
+              ))}
+            </dl>
           </div>
         </div>
       </section>
@@ -110,9 +145,11 @@ export function DeveloperPage() {
         className="animate-fade-up"
         style={{ animationDelay: '120ms' }}
       >
-        <h3 id="tech-stack-heading" className="sr-only">
-          Technology Stack
-        </h3>
+        <SectionHeading
+          id="tech-stack-heading"
+          title="Technology Stack"
+          desc="Every technology below is used in this repository today — nothing aspirational."
+        />
         {techStack.map((category, ci) => (
           <div
             key={category.name}
@@ -125,9 +162,15 @@ export function DeveloperPage() {
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {category.items.map((tech) => (
-                <div key={tech.name} className="rounded-xl glass-input px-4 py-3">
+                <div
+                  key={tech.name}
+                  className="rounded-xl glass-input px-4 py-3 glass-hover hover:-translate-y-0.5 transition-all duration-200"
+                >
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                    <tech.icon className="h-4 w-4 text-gray-400 dark:text-gray-500 shrink-0" aria-hidden="true" />
+                    <tech.icon
+                      className="h-4 w-4 text-gray-400 dark:text-gray-500 shrink-0 transition-transform duration-200 group-hover:scale-110"
+                      aria-hidden="true"
+                    />
                     {tech.name}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{tech.desc}</p>
@@ -144,11 +187,26 @@ export function DeveloperPage() {
         className="glass rounded-2xl p-6 animate-fade-up"
         style={{ animationDelay: '180ms' }}
       >
-        <SectionHeading
-          title="Why TaskFlow Exists"
-          desc={whyTaskFlow.intro}
-        />
-        <ul className="space-y-2.5">
+        <h3
+          id="why-heading"
+          className="text-lg font-bold text-gray-900 dark:text-gray-100"
+        >
+          Why TaskFlow Exists
+        </h3>
+        {/* Storytelling narrative — plain prose, per content research */}
+        <div className="space-y-3 mt-3 max-w-2xl">
+          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+            {whyTaskFlow.intro}
+          </p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+            Every layer had a reason. The API needed real filtering, pagination, and search — so
+            it got them. Validation had to fail loudly and safely — so Pydantic schemas reject bad
+            input at the boundary. Data had to survive restarts — so SQLAlchemy models ship with
+            Alembic migrations. And the interface had to feel as considered as the backend — so the
+            frontend is type-safe, responsive, and tested, with the same design system end to end.
+          </p>
+        </div>
+        <ul className="space-y-2.5 mt-5" aria-label="Engineering motivations">
           {whyTaskFlow.motivations.map((m) => (
             <li
               key={m}
@@ -164,29 +222,60 @@ export function DeveloperPage() {
         </ul>
       </section>
 
-      {/* ── 5. Engineering Highlights ─────────────────────────── */}
+      {/* ── 5. The Journey (real milestones) ──────────────────── */}
+      <section
+        aria-labelledby="journey-heading"
+        className="animate-fade-up"
+        style={{ animationDelay: '220ms' }}
+      >
+        <SectionHeading
+          id="journey-heading"
+          title="The Journey"
+          desc="Milestones from the project's git history — how TaskFlow grew from a skeleton into a deployed product."
+        />
+        <ol className="relative ml-3 border-l border-gray-900/10 dark:border-white/10 space-y-6">
+          {journey.map((milestone, i) => (
+            <li
+              key={milestone.title}
+              className="relative pl-6 animate-fade-up"
+              style={{ animationDelay: `${220 + i * 60}ms` }}
+            >
+              <span
+                className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 ring-4 ring-white/70 dark:ring-slate-900/70"
+                aria-hidden="true"
+              />
+              <p className="text-xs font-medium text-sky-700 dark:text-sky-300">{milestone.date}</p>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mt-0.5">
+                {milestone.title}
+              </h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mt-1">
+                {milestone.desc}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* ── 6. Engineering Highlights ─────────────────────────── */}
       <section
         aria-labelledby="highlights-heading"
         className="animate-fade-up"
-        style={{ animationDelay: '240ms' }}
+        style={{ animationDelay: '260ms' }}
       >
-        <div className="mb-5">
-          <h3 id="highlights-heading" className="text-lg font-bold text-gray-900 dark:text-gray-100">
-            Engineering Highlights
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Engineering work that went into TaskFlow, as it exists in the codebase today.
-          </p>
-        </div>
+        <SectionHeading
+          id="highlights-heading"
+          title="Engineering Highlights"
+          desc="Engineering work that went into TaskFlow, as it exists in the codebase today."
+        />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {engineeringHighlights.map((h, i) => (
             <article
               key={h.title}
-              className="glass rounded-2xl p-5 animate-fade-up"
-              style={{ animationDelay: `${240 + i * 60}ms` }}
+              className="glass rounded-2xl p-5 animate-fade-up transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-sky-500/10"
+              style={{ animationDelay: `${260 + i * 60}ms` }}
             >
               <div className="flex items-center gap-3 mb-2">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400/15 to-indigo-500/15 text-sky-600 dark:text-sky-400">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400/15 to-indigo-500/15 text-sky-600 dark:text-sky-400 transition-transform duration-200">
                   <h.icon className="h-4.5 w-4.5" aria-hidden="true" />
                 </div>
                 <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -201,20 +290,17 @@ export function DeveloperPage() {
         </div>
       </section>
 
-      {/* ── 6. Project Links ──────────────────────────────────── */}
+      {/* ── 7. Project Links ──────────────────────────────────── */}
       <section
         aria-labelledby="links-heading"
         className="animate-fade-up"
-        style={{ animationDelay: '300ms' }}
+        style={{ animationDelay: '320ms' }}
       >
-        <div className="mb-5">
-          <h3 id="links-heading" className="text-lg font-bold text-gray-900 dark:text-gray-100">
-            Project Links
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Everything opens in a new tab.
-          </p>
-        </div>
+        <SectionHeading
+          id="links-heading"
+          title="Project Links"
+          desc="Everything opens in a new tab."
+        />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {projectLinks.map((link, i) => (
             <a
@@ -222,8 +308,8 @@ export function DeveloperPage() {
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group glass rounded-2xl p-5 animate-fade-up transition-transform duration-200 hover:-translate-y-0.5"
-              style={{ animationDelay: `${300 + i * 60}ms` }}
+              className="group glass rounded-2xl p-5 animate-fade-up transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-sky-500/10"
+              style={{ animationDelay: `${320 + i * 60}ms` }}
             >
               <span className="flex items-center gap-3">
                 <link.icon
@@ -246,10 +332,10 @@ export function DeveloperPage() {
         </div>
       </section>
 
-      {/* ── 7. Footer ─────────────────────────────────────────── */}
+      {/* ── 8. Footer ─────────────────────────────────────────── */}
       <footer
         className="text-center py-4 animate-fade-up"
-        style={{ animationDelay: '360ms' }}
+        style={{ animationDelay: '380ms' }}
       >
         <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center justify-center gap-1.5 flex-wrap">
           TaskFlow — designed and developed by {developer.name}, built with

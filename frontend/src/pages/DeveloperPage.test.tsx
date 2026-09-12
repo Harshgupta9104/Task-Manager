@@ -6,6 +6,8 @@ import { Sidebar } from '../components/layout/Sidebar';
 import {
   developer,
   engineeringHighlights,
+  heroStats,
+  journey,
   projectLinks,
   techStack,
 } from '../config/developer';
@@ -57,6 +59,30 @@ describe('DeveloperPage', () => {
 
     for (const highlight of engineeringHighlights) {
       expect(screen.getByText(highlight.title)).toBeTruthy();
+    }
+  });
+
+  it('renders the journey timeline with every milestone', () => {
+    renderPage();
+
+    expect(screen.getByText('The Journey')).toBeTruthy();
+    for (const milestone of journey) {
+      expect(screen.getByText(milestone.title)).toBeTruthy();
+      expect(screen.getByText(milestone.desc)).toBeTruthy();
+    }
+  });
+
+  it('renders the hero trust-signal metrics', () => {
+    renderPage();
+
+    for (const stat of heroStats) {
+      expect(screen.getByText(stat.label)).toBeTruthy();
+    }
+    // The count-up hook renders the final value for reduced-motion/SSR-safe
+    // assertion after effects flush; values render as text content.
+    for (const stat of heroStats) {
+      const expected = `${stat.value}${stat.suffix ?? ''}`;
+      expect(screen.getByText(expected)).toBeTruthy();
     }
   });
 
