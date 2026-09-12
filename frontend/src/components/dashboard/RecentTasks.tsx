@@ -1,6 +1,7 @@
 import { ArrowRight, Clock, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Task } from '../../types/task';
+import { HeaderDecor } from '../ui/HeaderDecor';
 
 interface RecentTasksProps {
   tasks: Task[];
@@ -24,9 +25,10 @@ function formatDate(dateStr: string) {
 export function RecentTasks({ tasks }: RecentTasksProps) {
   if (tasks.length === 0) {
     return (
-      <div className="glass rounded-2xl p-6">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Recent Tasks</h3>
-        <div className="flex flex-col items-center justify-center py-12 text-center">
+      <div className="relative overflow-hidden glass rounded-2xl p-6">
+        <HeaderDecor icon={<Clock className="h-36 w-36" />} />
+        <h3 className="relative text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Recent Tasks</h3>
+        <div className="relative flex flex-col items-center justify-center py-12 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/60 dark:bg-white/10 mb-3">
             <Clock className="h-6 w-6 text-gray-400 dark:text-gray-400" />
           </div>

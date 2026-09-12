@@ -10,6 +10,8 @@ import {
 } from '../config/developer';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useCountUp } from '../hooks/useCountUp';
+import { HeaderDecor } from '../components/ui/HeaderDecor';
+import { Code2 } from 'lucide-react';
 
 /** Animated trust-signal metric (reuses the dashboard's count-up hook). */
 function HeroStatValue({ value, suffix }: { value: number; suffix?: string }) {
@@ -42,9 +44,10 @@ export function DeveloperPage() {
       {/* ── 1. Developer Hero ─────────────────────────────────── */}
       <section
         aria-labelledby="developer-heading"
-        className="glass rounded-2xl p-8 animate-fade-up"
+        className="relative overflow-hidden glass rounded-2xl p-8 animate-fade-up"
       >
-        <div className="flex flex-col sm:flex-row sm:items-start gap-6">
+        <HeaderDecor icon={<Code2 className="h-44 w-44" />} />
+        <div className="relative flex flex-col sm:flex-row sm:items-start gap-6">
           <div
             className="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl bg-gradient-to-br from-sky-400 to-indigo-500 text-white text-2xl font-bold shadow-lg shadow-sky-500/30 animate-zoom-in"
             aria-hidden="true"

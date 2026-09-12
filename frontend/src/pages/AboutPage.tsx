@@ -1,5 +1,6 @@
 import { ExternalLink, Code2, Zap, GitFork } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { HeaderDecor } from '../components/ui/HeaderDecor';
 
 const techStack = [
   { name: 'React 19', desc: 'UI framework' },
@@ -39,8 +40,9 @@ export function AboutPage() {
       </div>
 
       {/* Hero Card */}
-      <div className="glass rounded-2xl p-8 animate-fade-up" style={{ animationDelay: '60ms' }}>
-        <div className="flex items-center gap-4 mb-6">
+      <div className="relative overflow-hidden glass rounded-2xl p-8 animate-fade-up" style={{ animationDelay: '60ms' }}>
+        <HeaderDecor icon={<Zap className="h-44 w-44" />} />
+        <div className="relative flex items-center gap-4 mb-6">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-400 to-indigo-500 shadow-lg shadow-sky-500/30">
             <Zap className="h-7 w-7 text-white" />
           </div>
@@ -49,7 +51,7 @@ export function AboutPage() {
             <p className="text-sm text-gray-500 dark:text-gray-300">v1.0.0</p>
           </div>
         </div>
-        <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+        <p className="relative text-gray-600 dark:text-gray-300 leading-relaxed">
           TaskFlow is a full-stack task management application built with modern web technologies.
           It features a clean, intuitive interface designed to help you stay organized and productive —
           create tasks, track priorities, search your list instantly, and monitor progress from a live

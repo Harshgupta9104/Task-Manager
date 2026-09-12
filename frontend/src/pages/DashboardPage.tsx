@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { ListTodo, CheckCircle2, Clock, TrendingUp } from 'lucide-react';
+import { ListTodo, CheckCircle2, Clock, TrendingUp, LayoutDashboard } from 'lucide-react';
 import { StatCard } from '../components/dashboard/StatCard';
 import { RecentTasks } from '../components/dashboard/RecentTasks';
 import { Analytics } from '../components/dashboard/Analytics';
 import { DashboardSkeleton } from '../components/ui/Skeleton';
+import { HeaderDecor } from '../components/ui/HeaderDecor';
 import { getTasks, getTaskStats } from '../services/api';
 import type { Task, TaskStats } from '../types/task';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -53,7 +54,7 @@ export function DashboardPage() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <div className="rounded-2xl bg-red-50 border border-red-200 px-6 py-8 text-center max-w-md">
+        <div className="rounded-2xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/60 px-6 py-8 text-center max-w-md">
           <p className="text-sm font-medium text-red-800 dark:text-red-300 mb-1">Failed to load dashboard</p>
           <p className="text-xs text-red-600 dark:text-red-400 mb-4">{error}</p>
           <button
@@ -73,9 +74,10 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
-      <div className="animate-fade-up">
-        <h2 className="text-2xl font-bold text-gradient">Dashboard</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">Overview of your tasks and progress</p>
+      <div className="relative overflow-hidden glass rounded-2xl px-6 py-5 animate-fade-up">
+        <HeaderDecor icon={<LayoutDashboard className="h-40 w-40" />} />
+        <h2 className="relative text-2xl font-bold text-gradient">Dashboard</h2>
+        <p className="relative text-sm text-gray-500 dark:text-gray-300 mt-1">Overview of your tasks and progress</p>
       </div>
 
       {/* Stats */}

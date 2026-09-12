@@ -302,6 +302,45 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(148, 163, 184, 0.14);
 }
 
+/* ── Quiet decorative accents ────────────────────────────────────
+   Soft color washes and watermark icons that fill empty page areas.
+   Strictly decorative: pointer-events none, aria-hidden, low opacity,
+   and fully disabled under prefers-reduced-motion. */
+.accent-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(70px);
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.accent-orb-sky {
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.16), transparent 70%);
+}
+
+.accent-orb-indigo {
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.14), transparent 70%);
+}
+
+.dark .accent-orb-sky {
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.1), transparent 70%);
+}
+
+.dark .accent-orb-indigo {
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.09), transparent 70%);
+}
+
+/* Very faint oversized icon behind hero/empty-state content */
+.ghost-icon {
+  position: absolute;
+  pointer-events: none;
+  color: rgba(15, 23, 42, 0.05);
+}
+
+.dark .ghost-icon {
+  color: rgba(255, 255, 255, 0.045);
+}
+
 /* ── Gradient text ─────────────────────────────────────────────── */
 
 .text-gradient {

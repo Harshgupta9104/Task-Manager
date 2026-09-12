@@ -439,6 +439,7 @@ components consume these utilities instead of re-defining styles:
 | `.glass`, `.glass-strong`, `.glass-input`, `.glass-hover` | Frosted panel surfaces (blur + border + shadow, light & dark variants) |
 | `.ambient-bg`, `.aurora-spin`, `.ambient-blob`, `.bg-grid`, `.bg-noise`, `.pointer-glow` | Layered ambient background system |
 | `.text-gradient` | Sky→indigo gradient text accents |
+| `.accent-orb-*`, `.ghost-icon` (via `HeaderDecor`) | Quiet decorative fills for empty page areas (aria-hidden, reduced-motion safe) |
 | `.btn-primary` | Gradient CTA button with shine sweep |
 | `.animate-fade-up`, `.animate-zoom-in`, `.page-enter`, ... | Entrance motion utilities (staggered via `animation-delay`) |
 | `.shimmer` | Skeleton loading surfaces |
