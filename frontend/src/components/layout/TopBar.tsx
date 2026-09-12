@@ -12,7 +12,7 @@ export function TopBar({ onMenuClick, title }: TopBarProps) {
       <div className="flex h-16 items-center gap-4 px-4 sm:px-6">
         <button
           onClick={onMenuClick}
-          className="lg:hidden p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-white/10 transition-colors"
+          className="lg:hidden p-2 rounded-xl text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-white/10 transition-colors"
           aria-label="Open menu"
         >
           <Menu className="h-5 w-5" />

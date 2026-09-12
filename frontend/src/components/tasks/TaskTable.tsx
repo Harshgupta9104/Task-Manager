@@ -46,7 +46,7 @@ function formatDate(dateStr: string) {
 }
 
 const controlClass =
-  'glass-input rounded-xl text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:bg-white/80 dark:focus:bg-white/10 focus:ring-2 focus:ring-sky-400/50 outline-none transition-all';
+  'glass-input rounded-xl text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-400 focus:bg-white/80 dark:focus:bg-white/10 focus:ring-2 focus:ring-sky-400/50 outline-none transition-all';
 
 export function TaskTable({
   tasks,
@@ -123,7 +123,7 @@ export function TaskTable({
             <button
               onClick={onRefresh}
               disabled={loading}
-              className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-white/10 rounded-xl transition-colors disabled:opacity-50"
+              className="p-2 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-white/10 rounded-xl transition-colors disabled:opacity-50"
               aria-label="Refresh"
             >
               <RotateCcw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
@@ -159,10 +159,10 @@ export function TaskTable({
               <tr>                  <td colSpan={7} className="px-5 py-16 text-center">
                   <div className="flex flex-col items-center">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/60 dark:bg-white/10 mb-3">
-                      <Clock className="h-6 w-6 text-gray-400 dark:text-gray-500" />
+                      <Clock className="h-6 w-6 text-gray-400 dark:text-gray-400" />
                     </div>
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No tasks found</p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">
+                    <p className="text-xs text-gray-400 dark:text-gray-400">
                       {search || filter !== null ? 'Try adjusting your search or filter' : 'Create a task to get started'}
                     </p>
                   </div>
@@ -192,7 +192,7 @@ export function TaskTable({
                     </button>
                   </td>
                   <td className="px-5 py-4">
-                    <p className={`text-sm font-medium ${task.completed ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-900 dark:text-gray-100'}`}>
+                    <p className={`text-sm font-medium ${task.completed ? 'text-gray-400 dark:text-gray-400 line-through' : 'text-gray-900 dark:text-gray-100'}`}>
                       {task.title}
                     </p>
                   </td>
@@ -202,7 +202,7 @@ export function TaskTable({
                     </span>
                   </td>
                   <td className="px-5 py-4 hidden md:table-cell">
-                    <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs truncate">
+                    <p className="text-sm text-gray-500 dark:text-gray-300 max-w-xs truncate">
                       {task.description || '—'}
                     </p>
                   </td>
@@ -247,7 +247,7 @@ export function TaskTable({
             <button
               onClick={() => onPageChange(page - 1)}
               disabled={page === 0}
-              className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-white/10 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className="p-1.5 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-white/10 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               aria-label="Previous page"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -258,7 +258,7 @@ export function TaskTable({
             <button
               onClick={() => onPageChange(page + 1)}
               disabled={page >= totalPages - 1}
-              className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-white/10 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              className="p-1.5 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-white/10 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               aria-label="Next page"
             >
               <ChevronRight className="h-4 w-4" />

@@ -69,7 +69,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                   `group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
                     isActive
                       ? 'bg-white/70 dark:bg-white/10 text-sky-700 dark:text-sky-300 shadow-md shadow-sky-500/15'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200 hover:translate-x-0.5'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-200 hover:translate-x-0.5'
                   }`
                 }
               >
@@ -82,7 +82,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                       className={`h-5 w-5 transition-all duration-200 ${
                         isActive
                           ? 'text-sky-600 dark:text-sky-400 scale-110'
-                          : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 group-hover:scale-105'
+                          : 'text-gray-400 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 group-hover:scale-105'
                       }`}
                     />
                     {item.label}
@@ -94,7 +94,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
           {/* Footer */}
           <div className="px-6 py-4 border-t border-gray-900/5 dark:border-white/10">
-            <p className="text-xs text-gray-400 dark:text-gray-500">Task Management API v1.0</p>
+            <p className="text-xs text-gray-400 dark:text-gray-400">Task Management API v1.0</p>
           </div>
         </div>
       </aside>

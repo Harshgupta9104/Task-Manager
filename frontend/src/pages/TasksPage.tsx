@@ -106,7 +106,7 @@ export function TasksPage() {
       <div className="flex items-center justify-between animate-fade-up">
         <div>
           <h2 className="text-2xl font-bold text-gradient">Tasks</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
             {total} total task{total !== 1 ? 's' : ''}
           </p>
         </div>
@@ -139,10 +139,10 @@ export function TasksPage() {
       {!loading && total === 0 && !error ? (
         <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 py-16 text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 mx-auto mb-4">
-            <ListTodo className="h-7 w-7 text-gray-400 dark:text-gray-500" />
+            <ListTodo className="h-7 w-7 text-gray-400 dark:text-gray-400" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">No tasks yet</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Get started by creating your first task</p>
+          <p className="text-sm text-gray-500 dark:text-gray-300 mb-6">Get started by creating your first task</p>
           <button
             onClick={() => setFormOpen(true)}
             className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-xl"

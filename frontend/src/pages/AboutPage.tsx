@@ -35,7 +35,7 @@ export function AboutPage() {
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
           About <span className="text-gradient">TaskFlow</span>
         </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">A modern task management application</p>
+        <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">A modern task management application</p>
       </div>
 
       {/* Hero Card */}
@@ -46,10 +46,10 @@ export function AboutPage() {
           </div>
           <div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">TaskFlow</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">v1.0.0</p>
+            <p className="text-sm text-gray-500 dark:text-gray-300">v1.0.0</p>
           </div>
         </div>
-        <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+        <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
           TaskFlow is a full-stack task management application built with modern web technologies.
           It features a clean, intuitive interface designed to help you stay organized and productive —
           create tasks, track priorities, search your list instantly, and monitor progress from a live
@@ -67,7 +67,7 @@ export function AboutPage() {
           </div>
           <div>
             <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Harsh Gupta</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Full-stack developer · Built with passion for productivity</p>
+            <p className="text-xs text-gray-500 dark:text-gray-300">Full-stack developer · Built with passion for productivity</p>
           </div>
         </div>
       </div>
@@ -85,7 +85,7 @@ export function AboutPage() {
               className="rounded-xl glass-input px-4 py-3"
             >
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{tech.name}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{tech.desc}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-300">{tech.desc}</p>
             </div>
           ))}
         </div>
@@ -96,7 +96,7 @@ export function AboutPage() {
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Features</h3>
         <ul className="space-y-2">
           {features.map((feature) => (
-            <li key={feature} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <li key={feature} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
               <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-gradient-to-r from-sky-400 to-indigo-500 shrink-0" />
               {feature}
             </li>

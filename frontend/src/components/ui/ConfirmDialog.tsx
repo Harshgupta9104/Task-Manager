@@ -41,7 +41,7 @@ export function ConfirmDialog({
           </div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
         </div>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">{message}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">{message}</p>
         <div className="flex justify-end gap-3">
           <button
             onClick={onCancel}

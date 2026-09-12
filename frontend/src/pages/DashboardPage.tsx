@@ -75,7 +75,7 @@ export function DashboardPage() {
     <div className="space-y-6 max-w-6xl mx-auto">
       <div className="animate-fade-up">
         <h2 className="text-2xl font-bold text-gradient">Dashboard</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Overview of your tasks and progress</p>
+        <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">Overview of your tasks and progress</p>
       </div>
 
       {/* Stats */}

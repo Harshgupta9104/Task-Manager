@@ -28,7 +28,7 @@ function SectionHeading({ id, title, desc }: { id: string; title: string; desc?:
     <div className="mb-5">
       <h3 id={id} className="text-lg font-bold text-gray-900 dark:text-gray-100">{title}</h3>
       {desc && (
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 max-w-2xl">{desc}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-300 mt-1 max-w-2xl">{desc}</p>
       )}
     </div>
   );
@@ -66,7 +66,7 @@ export function DeveloperPage() {
               {developer.role}
             </p>
             <p
-              className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mt-3 animate-fade-up"
+              className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mt-3 animate-fade-up"
               style={{ animationDelay: '180ms' }}
             >
               {developer.intro}
@@ -105,7 +105,7 @@ export function DeveloperPage() {
                   <dd className="order-1">
                     <HeroStatValue value={stat.value} suffix={stat.suffix} />
                   </dd>
-                  <dt className="order-2 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <dt className="order-2 text-xs text-gray-500 dark:text-gray-300 mt-1">
                     {stat.label}
                   </dt>
                 </div>
@@ -131,7 +131,7 @@ export function DeveloperPage() {
           {developer.about.map((paragraph) => (
             <p
               key={paragraph.slice(0, 32)}
-              className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed"
+              className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed"
             >
               {paragraph}
             </p>
@@ -168,12 +168,12 @@ export function DeveloperPage() {
                 >
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
                     <tech.icon
-                      className="h-4 w-4 text-gray-400 dark:text-gray-500 shrink-0 transition-transform duration-200 group-hover:scale-110"
+                      className="h-4 w-4 text-gray-400 dark:text-gray-400 shrink-0 transition-transform duration-200 group-hover:scale-110"
                       aria-hidden="true"
                     />
                     {tech.name}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{tech.desc}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">{tech.desc}</p>
                 </div>
               ))}
             </div>
@@ -195,10 +195,10 @@ export function DeveloperPage() {
         </h3>
         {/* Storytelling narrative — plain prose, per content research */}
         <div className="space-y-3 mt-3 max-w-2xl">
-          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+          <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
             {whyTaskFlow.intro}
           </p>
-          <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+          <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
             Every layer had a reason. The API needed real filtering, pagination, and search — so
             it got them. Validation had to fail loudly and safely — so Pydantic schemas reject bad
             input at the boundary. Data had to survive restarts — so SQLAlchemy models ship with
@@ -210,7 +210,7 @@ export function DeveloperPage() {
           {whyTaskFlow.motivations.map((m) => (
             <li
               key={m}
-              className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-400"
+              className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-300"
             >
               <Zap
                 className="h-4 w-4 mt-0.5 text-sky-500 dark:text-sky-400 shrink-0"
@@ -248,7 +248,7 @@ export function DeveloperPage() {
               <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mt-0.5">
                 {milestone.title}
               </h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mt-1">
+              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mt-1">
                 {milestone.desc}
               </p>
             </li>
@@ -282,7 +282,7 @@ export function DeveloperPage() {
                   {h.title}
                 </h4>
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                 {h.desc}
               </p>
             </article>
@@ -324,7 +324,7 @@ export function DeveloperPage() {
                   aria-hidden="true"
                 />
               </span>
-              <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1.5">
+              <span className="block text-xs text-gray-500 dark:text-gray-300 mt-1.5">
                 {link.desc}
               </span>
             </a>
@@ -337,7 +337,7 @@ export function DeveloperPage() {
         className="text-center py-4 animate-fade-up"
         style={{ animationDelay: '380ms' }}
       >
-        <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center justify-center gap-1.5 flex-wrap">
+        <p className="text-xs text-gray-500 dark:text-gray-300 flex items-center justify-center gap-1.5 flex-wrap">
           TaskFlow — designed and developed by {developer.name}, built with
           <Heart className="h-3.5 w-3.5 text-sky-500 dark:text-sky-400" aria-hidden="true" />
           using React, TypeScript &amp; FastAPI

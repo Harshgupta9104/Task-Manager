@@ -11,7 +11,7 @@ export function NotFoundPage() {
         <span className="text-4xl font-bold text-gradient">404</span>
       </div>
       <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Page not found</h2>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
+      <p className="text-sm text-gray-500 dark:text-gray-300 mb-8">
         Sorry, we couldn't find the page you're looking for. It might have been moved or doesn't exist.
       </p>
       <div className="flex items-center gap-3">

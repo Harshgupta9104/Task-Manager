@@ -28,10 +28,10 @@ export function RecentTasks({ tasks }: RecentTasksProps) {
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Recent Tasks</h3>
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/60 dark:bg-white/10 mb-3">
-            <Clock className="h-6 w-6 text-gray-400 dark:text-gray-500" />
+            <Clock className="h-6 w-6 text-gray-400 dark:text-gray-400" />
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">No tasks yet</p>
-          <p className="text-xs text-gray-400 dark:text-gray-500">Create your first task to get started</p>
+          <p className="text-sm text-gray-500 dark:text-gray-300 mb-1">No tasks yet</p>
+          <p className="text-xs text-gray-400 dark:text-gray-400">Create your first task to get started</p>
         </div>
       </div>
     );
@@ -62,11 +62,11 @@ export function RecentTasks({ tasks }: RecentTasksProps) {
               <div className="h-4 w-4 rounded-full border-2 border-gray-300 dark:border-gray-600 shrink-0" />
             )}
             <div className="flex-1 min-w-0">
-              <p className={`text-sm font-medium truncate ${task.completed ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-900 dark:text-gray-100'}`}>
+              <p className={`text-sm font-medium truncate ${task.completed ? 'text-gray-400 dark:text-gray-400 line-through' : 'text-gray-900 dark:text-gray-100'}`}>
                 {task.title}
               </p>
             </div>
-            <span className="text-xs text-gray-400 dark:text-gray-500 shrink-0">{formatDate(task.created_at)}</span>
+            <span className="text-xs text-gray-400 dark:text-gray-400 shrink-0">{formatDate(task.created_at)}</span>
           </div>
         ))}
       </div>

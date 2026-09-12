@@ -16,7 +16,7 @@ function BarChart({
     <div className="space-y-3">
       {data.map((item, i) => (
         <div key={item.label} className="flex items-center gap-3">
-          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 w-16 text-right">{item.label}</span>
+          <span className="text-xs font-medium text-gray-500 dark:text-gray-300 w-16 text-right">{item.label}</span>
           <div className="flex-1 h-7 bg-white/50 dark:bg-white/5 rounded-lg overflow-hidden ring-1 ring-inset ring-gray-900/5 dark:ring-white/10">
             <div
               className={`h-full ${item.color} rounded-lg animate-bar-grow flex items-center shadow-sm`}
@@ -80,10 +80,10 @@ function DonutChart({ completed, total }: { completed: number; total: number }) 
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">{Math.round(pct)}%</span>
-          <span className="text-xs text-gray-500 dark:text-gray-400">done</span>
+          <span className="text-xs text-gray-500 dark:text-gray-300">done</span>
         </div>
       </div>
-      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-300">
         <div className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-full bg-gradient-to-r from-sky-400 to-indigo-500" />
           Completed ({completed})
@@ -118,7 +118,7 @@ export function Analytics({ stats }: AnalyticsProps) {
       <div className="glass rounded-2xl p-6">
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-5">Priority Distribution</h3>
         {stats.total === 0 ? (
-          <div className="flex items-center justify-center h-28 text-sm text-gray-400 dark:text-gray-500">
+          <div className="flex items-center justify-center h-28 text-sm text-gray-400 dark:text-gray-400">
             No tasks yet
           </div>
         ) : (

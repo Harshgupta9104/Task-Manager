@@ -29,7 +29,7 @@ const priorityOptions: { value: Priority; label: string; selected: string }[] = 
 ];
 
 const inputClass =
-  'glass-input w-full px-4 py-2.5 text-sm rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-sky-400/40 outline-none transition-all';
+  'glass-input w-full px-4 py-2.5 text-sm rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-400 focus:ring-2 focus:ring-sky-400/40 outline-none transition-all';
 
 export function TaskForm({ open, task, onSubmit, onClose }: TaskFormProps) {
   // State is initialized from the task prop. The parent remounts this
@@ -159,7 +159,7 @@ export function TaskForm({ open, task, onSubmit, onClose }: TaskFormProps) {
                   className={`flex-1 px-3 py-2 text-sm font-medium rounded-xl border transition-all duration-150 active:scale-95 ${
                     priority === opt.value
                       ? opt.selected + ' shadow-md scale-[1.02]'
-                      : 'glass-input text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:-translate-y-0.5'
+                      : 'glass-input text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 hover:-translate-y-0.5'
                   }`}
                 >
                   {opt.label}
