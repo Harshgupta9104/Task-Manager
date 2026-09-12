@@ -3,6 +3,7 @@ import { Layout } from './components/layout/Layout';
 import { DashboardPage } from './pages/DashboardPage';
 import { TasksPage } from './pages/TasksPage';
 import { AboutPage } from './pages/AboutPage';
+import { DeveloperPage } from './pages/DeveloperPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 export default function App() {
@@ -13,6 +14,7 @@ export default function App() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/tasks" element={<TasksPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/developer" element={<DeveloperPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

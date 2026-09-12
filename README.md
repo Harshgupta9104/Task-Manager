@@ -22,6 +22,11 @@ A full-stack task management application with a **FastAPI** backend and **React*
   - [Tasks Table](#tasks-table)
   - [Entity Relationship](#entity-relationship)
   - [Database Flow](#database-flow)
+- [Visual Structure](#-visual-structure)
+  - [Layout Shell](#layout-shell)
+  - [Page Map](#page-map)
+  - [Design System](#design-system)
+  - [Navigation Flow](#navigation-flow)
 - [Application Flow](#-application-flow)
   - [Data Flow Diagram](#data-flow-diagram)
   - [User Journey](#user-journey)
@@ -41,7 +46,10 @@ A full-stack task management application with a **FastAPI** backend and **React*
 - **Filtering & Pagination** — Filter by completion status and priority
 - **Full-Text Search** — Case-insensitive search across task titles and descriptions
 - **Task Statistics** — Dashboard with total, completed, pending, and priority counts
-- **Modern UI** — React dashboard with responsive design
+- **Modern UI** — React dashboard with responsive design, glass-morphism styling, and dark mode
+- **Search & Filters** — Instant debounced search plus completion/priority filters
+- **Dashboard Analytics** — Stat cards, priority breakdown chart, and recent tasks widgets
+- **Developer Page** — In-app page detailing the developer, tech stack, and project links
 - **SQLite Database** — Zero-config database, no external setup required
 - **Auto-Generated Docs** — Swagger UI and ReDoc for API exploration
 - **CORS Support** — Configurable cross-origin resource sharing
@@ -106,7 +114,8 @@ A full-stack task management application with a **FastAPI** backend and **React*
 │   │   │   ├── tasks/            # Task form & table
 │   │   │   ├── dashboard/        # Dashboard widgets
 │   │   │   └── ui/               # Reusable UI components
-│   │   ├── pages/                # Page components
+│   │   ├── pages/                # Page components (Dashboard, Tasks, About, Developer, 404)
+│   │   ├── config/               # Static page content (developer profile & project data)
 │   │   ├── services/             # API client
 │   │   ├── hooks/                # Custom React hooks
 │   │   └── types/                # TypeScript types
@@ -373,6 +382,92 @@ The application uses a single SQLite database with one table:
 
 ---
 
+## 🎨 Visual Structure
+
+### Layout Shell
+
+Every page renders inside one shared layout (`frontend/src/components/layout/Layout.tsx`):
+
+```
+┌────────────────────────────────────────────────────────────────────┐
+│ AMBIENT BACKGROUND (fixed, behind everything)                      │
+│  aurora spin · drifting orbs · dot grid · noise · pointer glow     │
+│ ┌──────────┐ ┌──────────────────────────────────────────────────┐ │
+│ │ SIDEBAR  │ │ TOPBAR (title + theme toggle)                    │ │
+│ │ w-64     │ ├──────────────────────────────────────────────────┤ │
+│ │ glass    │ │ MAIN (scrollable, page-enter animation on route  │ │
+│ │          │ │ change)                                          │ │
+│ │ Dashboard│ │   <Route content />                              │ │
+│ │ Tasks    │ │                                                  │ │
+│ │ About    │ │   Toasts appear bottom-right (global)            │ │
+│ │ Developer│ │                                                  │ │
+│ │          │ │                                                  │ │
+│ │ v1.0     │ │                                                  │ │
+│ └──────────┘ └──────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────────────────┘
+
+  < lg (mobile/tablet): sidebar slides over content behind a blurred
+  overlay, toggled from the topbar menu button; auto-closes on navigate.
+```
+
+### Page Map
+
+```
+App.tsx (BrowserRouter)
+└── Layout (shared shell above)
+    ├── /           → DashboardPage
+    │                 • 4 stat cards (total / completed / pending / high)
+    │                 • priority breakdown (bars + donut)
+    │                 • recent tasks list
+    ├── /tasks      → TasksPage
+    │                 • search input (debounced)
+    │                 • status & priority filter chips
+    │                 • paginated task table (row stagger, confirm dialogs)
+    │                 • create/edit modal form
+    ├── /about      → AboutPage        (product overview, tech grid, links)
+    ├── /developer  → DeveloperPage    (hero, tech stack, highlights, links)
+    └── *           → NotFoundPage
+```
+
+### Design System
+
+Defined in `frontend/src/index.css` on top of Tailwind CSS v4 —
+components consume these utilities instead of re-defining styles:
+
+| Utility / Class | Role |
+|---|---|
+| `.glass`, `.glass-strong`, `.glass-input`, `.glass-hover` | Frosted panel surfaces (blur + border + shadow, light & dark variants) |
+| `.ambient-bg`, `.aurora-spin`, `.ambient-blob`, `.bg-grid`, `.bg-noise`, `.pointer-glow` | Layered ambient background system |
+| `.text-gradient` | Sky→indigo gradient text accents |
+| `.btn-primary` | Gradient CTA button with shine sweep |
+| `.animate-fade-up`, `.animate-zoom-in`, `.page-enter`, ... | Entrance motion utilities (staggered via `animation-delay`) |
+| `.shimmer` | Skeleton loading surfaces |
+| `.theme-transition` | Smooth light/dark switch |
+| `:focus-visible` outline | Global keyboard focus ring |
+| `prefers-reduced-motion` media query | Disables animation/transition movement app-wide |
+
+Typography: **Manrope** (headings) + **Inter** (body) via `@fontsource-variable`.
+
+### Navigation Flow
+
+```
+        ┌───────────┐  task CRUD   ┌───────────┐
+        │ Dashboard │─────────────▶│   Tasks   │
+        └─────┬─────┘              └─────┬─────┘
+              │        SIDEBAR           │
+              ├──────────────┬───────────┴─┐
+              ▼              ▼             ▼
+          ┌───────┐    ┌───────────┐  ┌──────┐
+          │ About │    │ Developer │  │ 404  │
+          └───────┘    └───────────┘  └──────┘
+
+  • Sidebar highlights the active route (gradient bar + tinted icon)
+  • Unknown URLs land on the 404 page with a way back
+  • Theme toggle in the topbar persists across visits
+```
+
+---
+
 ## 🔄 Application Flow
 
 ### Data Flow Diagram
@@ -526,6 +621,7 @@ The application uses a single SQLite database with one table:
 | Dashboard | `/` | Overview with task statistics |
 | Tasks | `/tasks` | Full task list with CRUD operations |
 | About | `/about` | Application information |
+| Developer | `/developer` | Developer, tech stack, and project information |
 | 404 | `*` | Not found page |
 
 ---

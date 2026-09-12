@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   ListTodo,
   Info,
+  Code2,
   X,
   Zap,
 } from 'lucide-react';
@@ -16,6 +17,7 @@ const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/tasks', icon: ListTodo, label: 'Tasks' },
   { to: '/about', icon: Info, label: 'About' },
+  { to: '/developer', icon: Code2, label: 'Developer' },
 ];
 
 export function Sidebar({ open, onClose }: SidebarProps) {
