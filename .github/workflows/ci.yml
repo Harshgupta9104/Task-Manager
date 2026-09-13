@@ -8,10 +8,14 @@ on:
 jobs:
   backend:
     runs-on: ubuntu-latest
+    permissions:
+      # Required by the junit-report step to publish failure annotations.
+      checks: write
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.10"
           cache: "pip"
@@ -20,14 +24,24 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run backend tests
-        run: pytest tests/ -v
+        # --junitxml: machine-readable results, re-emitted as check-run
+        # annotations below so the failing test names appear in the UI even
+        # when the raw log cannot be viewed.
+        run: pytest tests/ -v --junitxml=pytest-results.xml
+
+      - name: Annotate test failures
+        if: failure()
+        uses: mikepenz/action-junit-report@v4
+        with:
+          report_paths: pytest-results.xml
+          check_name: backend tests
 
   frontend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           # Vite 8 / Vitest 5 require Node >= 20.19; 22 is the current LTS.
           node-version: 22
