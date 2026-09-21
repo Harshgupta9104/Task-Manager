@@ -1,13 +1,9 @@
 """Tests for Task CRUD endpoints."""
 
-import pytest
-from sqlalchemy import create_engine, inspect
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import inspect
 
-from app.database import Base, get_db
+from app.database import get_db
 from app.enums import Priority
-from app.schemas import TaskCreate
-
 
 # ─── Health Endpoints ───────────────────────────────────────────────
 
@@ -166,9 +162,7 @@ class TestPriorityValidation:
         create_resp = client.post("/api/v1/tasks/", json={"title": "Task"})
         task_id = create_resp.json()["id"]
 
-        response = client.put(
-            f"/api/v1/tasks/{task_id}", json={"priority": "critical"}
-        )
+        response = client.put(f"/api/v1/tasks/{task_id}", json={"priority": "critical"})
         assert response.status_code == 422
 
 
@@ -242,9 +236,7 @@ class TestSearch:
         for i in range(10):
             client.post("/api/v1/tasks/", json={"title": f"Task {i}"})
         for i in range(5):
-            client.post(
-                "/api/v1/tasks/", json={"title": f"Important item {i}"}
-            )
+            client.post("/api/v1/tasks/", json={"title": f"Important item {i}"})
 
         # Search for "Important" — should match 5 tasks
         response = client.get("/api/v1/tasks/?search=Important&skip=0&limit=3")
@@ -272,9 +264,7 @@ class TestSearch:
             json={"title": "Other high", "priority": "high"},
         )
 
-        response = client.get(
-            "/api/v1/tasks/?search=Important&priority=high"
-        )
+        response = client.get("/api/v1/tasks/?search=Important&priority=high")
         data = response.json()
         assert data["total"] == 1
         assert data["tasks"][0]["title"] == "Important high"
@@ -289,9 +279,7 @@ class TestSearch:
             json={"title": "Important pending", "completed": False},
         )
 
-        response = client.get(
-            "/api/v1/tasks/?search=Important&completed=false"
-        )
+        response = client.get("/api/v1/tasks/?search=Important&completed=false")
         data = response.json()
         assert data["total"] == 1
         assert data["tasks"][0]["title"] == "Important pending"
@@ -308,9 +296,7 @@ class TestSearch:
                 json={"title": f"Other task {i}", "priority": "low"},
             )
 
-        response = client.get(
-            "/api/v1/tasks/?search=Match&limit=10"
-        )
+        response = client.get("/api/v1/tasks/?search=Match&limit=10")
         data = response.json()
         assert data["total"] == 25
         assert len(data["tasks"]) == 10
@@ -419,13 +405,9 @@ class TestListTasks:
         """Verify that filtering happens before pagination."""
         # Create 5 low, 5 high
         for i in range(5):
-            client.post(
-                "/api/v1/tasks/", json={"title": f"Low {i}", "priority": "low"}
-            )
+            client.post("/api/v1/tasks/", json={"title": f"Low {i}", "priority": "low"})
         for i in range(5):
-            client.post(
-                "/api/v1/tasks/", json={"title": f"High {i}", "priority": "high"}
-            )
+            client.post("/api/v1/tasks/", json={"title": f"High {i}", "priority": "high"})
 
         # Request limit=3 but only high priority
         response = client.get("/api/v1/tasks/?priority=high&limit=3")
@@ -442,9 +424,7 @@ class TestGetTask:
 
     def test_get_task_success(self, client):
         # Create a task first
-        create_resp = client.post(
-            "/api/v1/tasks/", json={"title": "Get me"}
-        )
+        create_resp = client.post("/api/v1/tasks/", json={"title": "Get me"})
         task_id = create_resp.json()["id"]
 
         response = client.get(f"/api/v1/tasks/{task_id}")
@@ -498,16 +478,12 @@ class TestUpdateTask:
         assert data["description"] == "Keep me"
 
     def test_update_task_not_found(self, client):
-        response = client.put(
-            "/api/v1/tasks/9999", json={"title": "Ghost task"}
-        )
+        response = client.put("/api/v1/tasks/9999", json={"title": "Ghost task"})
         assert response.status_code == 404
 
     def test_update_task_empty_body(self, client):
         # Create a task
-        create_resp = client.post(
-            "/api/v1/tasks/", json={"title": "No change"}
-        )
+        create_resp = client.post("/api/v1/tasks/", json={"title": "No change"})
         task_id = create_resp.json()["id"]
 
         # Update with empty body (should still succeed, no changes)
@@ -522,9 +498,7 @@ class TestUpdateTask:
         )
         task_id = create_resp.json()["id"]
 
-        response = client.put(
-            f"/api/v1/tasks/{task_id}", json={"priority": "high"}
-        )
+        response = client.put(f"/api/v1/tasks/{task_id}", json={"priority": "high"})
         assert response.status_code == 200
         assert response.json()["priority"] == "high"
 
@@ -537,9 +511,7 @@ class TestDeleteTask:
 
     def test_delete_task_success(self, client):
         # Create a task
-        create_resp = client.post(
-            "/api/v1/tasks/", json={"title": "Delete me"}
-        )
+        create_resp = client.post("/api/v1/tasks/", json={"title": "Delete me"})
         task_id = create_resp.json()["id"]
 
         # Delete it
@@ -556,9 +528,7 @@ class TestDeleteTask:
 
     def test_delete_task_twice(self, client):
         # Create a task
-        create_resp = client.post(
-            "/api/v1/tasks/", json={"title": "Double delete"}
-        )
+        create_resp = client.post("/api/v1/tasks/", json={"title": "Double delete"})
         task_id = create_resp.json()["id"]
 
         # First delete succeeds
@@ -716,7 +686,15 @@ class TestMigrationSchema:
         inspector = inspect(engine)
         columns = {col["name"] for col in inspector.get_columns("tasks")}
 
-        expected = {"id", "title", "description", "priority", "completed", "created_at", "updated_at"}
+        expected = {
+            "id",
+            "title",
+            "description",
+            "priority",
+            "completed",
+            "created_at",
+            "updated_at",
+        }
         assert columns == expected
 
     def test_tasks_table_has_indexes(self, db_session):
@@ -774,9 +752,15 @@ class TestTaskStatsBreakdown:
         assert data["low"] == 3
 
     def test_stats_completed_vs_pending(self, client):
-        client.post("/api/v1/tasks/", json={"title": "Done 1", "completed": True, "priority": "high"})
-        client.post("/api/v1/tasks/", json={"title": "Done 2", "completed": True, "priority": "low"})
-        client.post("/api/v1/tasks/", json={"title": "Pending 1", "completed": False, "priority": "medium"})
+        client.post(
+            "/api/v1/tasks/", json={"title": "Done 1", "completed": True, "priority": "high"}
+        )
+        client.post(
+            "/api/v1/tasks/", json={"title": "Done 2", "completed": True, "priority": "low"}
+        )
+        client.post(
+            "/api/v1/tasks/", json={"title": "Pending 1", "completed": False, "priority": "medium"}
+        )
 
         response = client.get("/api/v1/tasks/stats")
         data = response.json()
@@ -812,8 +796,12 @@ class TestTaskStatsBreakdown:
 
     def test_stats_priority_counts_with_completed(self, client):
         """Priority counts include both completed and pending tasks."""
-        client.post("/api/v1/tasks/", json={"title": "High done", "priority": "high", "completed": True})
-        client.post("/api/v1/tasks/", json={"title": "High pending", "priority": "high", "completed": False})
+        client.post(
+            "/api/v1/tasks/", json={"title": "High done", "completed": True, "priority": "high"}
+        )
+        client.post(
+            "/api/v1/tasks/", json={"title": "High pending", "completed": False, "priority": "high"}
+        )
 
         response = client.get("/api/v1/tasks/stats")
         data = response.json()
@@ -876,23 +864,27 @@ class TestConfiguration:
 
     def test_settings_has_cors_origins(self):
         from app.config import settings
+
         assert hasattr(settings, "ALLOWED_ORIGINS")
         assert isinstance(settings.ALLOWED_ORIGINS, list)
         assert len(settings.ALLOWED_ORIGINS) > 0
 
     def test_settings_has_database_url(self):
         from app.config import settings
+
         assert hasattr(settings, "DATABASE_URL")
         assert isinstance(settings.DATABASE_URL, str)
 
     def test_settings_has_app_metadata(self):
         from app.config import settings
+
         assert settings.APP_NAME
         assert settings.APP_VERSION
 
     def test_cors_origins_are_configurable(self):
         """ALLOWED_ORIGINS should not be a wildcard by default."""
         from app.config import settings
+
         assert "*" not in settings.ALLOWED_ORIGINS
 
     def test_priority_enum_matches_frontend_type(self):
@@ -991,9 +983,9 @@ class TestCORSConfiguration:
                 headers={"Origin": "https://evil.example.com"},
             )
         assert resp.status_code == 200
-        assert (
-            resp.headers.get("access-control-allow-origin") is None
-        ), "unrelated origin must not be allowed"
+        assert resp.headers.get("access-control-allow-origin") is None, (
+            "unrelated origin must not be allowed"
+        )
 
     def test_trailing_slash_normalization(self, db_session):
         """A configured origin with a trailing slash must still match the browser."""
@@ -1004,9 +996,9 @@ class TestCORSConfiguration:
                 headers={"Origin": self.VERCEL_ORIGIN},
             )
         assert resp.status_code == 200
-        assert (
-            resp.headers.get("access-control-allow-origin") == self.VERCEL_ORIGIN
-        ), "trailing-slash origin should still match the clean browser origin"
+        assert resp.headers.get("access-control-allow-origin") == self.VERCEL_ORIGIN, (
+            "trailing-slash origin should still match the clean browser origin"
+        )
 
     def test_localhost_still_works_by_default(self, db_session, monkeypatch):
         """The default local development origin must keep working."""
@@ -1027,9 +1019,9 @@ class TestCORSConfiguration:
                 headers={"Origin": localhost},
             )
         assert resp.status_code == 200
-        assert (
-            resp.headers.get("access-control-allow-origin") == localhost
-        ), "default localhost origin must still be allowed"
+        assert resp.headers.get("access-control-allow-origin") == localhost, (
+            "default localhost origin must still be allowed"
+        )
 
     def test_json_array_env_form_is_accepted(self, db_session):
         """ALLOWED_ORIGINS='[\"https://task-manager-pi-gray.vercel.app\"]' must work."""
@@ -1042,9 +1034,9 @@ class TestCORSConfiguration:
                 headers={"Origin": self.VERCEL_ORIGIN},
             )
         assert resp.status_code == 200
-        assert (
-            resp.headers.get("access-control-allow-origin") == self.VERCEL_ORIGIN
-        ), "JSON-array env form must configure the origin correctly"
+        assert resp.headers.get("access-control-allow-origin") == self.VERCEL_ORIGIN, (
+            "JSON-array env form must configure the origin correctly"
+        )
 
     def test_credentials_headers_and_methods_unchanged(self, db_session):
         """CORS must keep allow_credentials=True with allow_methods/headers=['*']."""
@@ -1065,7 +1057,9 @@ class TestCORSConfiguration:
         allow_methods = resp.headers.get("access-control-allow-methods", "")
         allow_headers = resp.headers.get("access-control-allow-headers", "")
         assert "POST" in allow_methods, f"POST must be in allowed methods: {allow_methods!r}"
-        assert "Content-Type" in allow_headers, f"Content-Type must be in allowed headers: {allow_headers!r}"
-        assert (
-            resp.headers.get("access-control-allow-credentials") == "true"
-        ), "allow_credentials must remain enabled"
+        assert "Content-Type" in allow_headers, (
+            f"Content-Type must be in allowed headers: {allow_headers!r}"
+        )
+        assert resp.headers.get("access-control-allow-credentials") == "true", (
+            "allow_credentials must remain enabled"
+        )

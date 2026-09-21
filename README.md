@@ -672,6 +672,22 @@ See [DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) for complete setup.
 
 ## 🧪 Testing
 
+### Backend Quality Gates
+
+```bash
+# Lint and enforce formatting (ruff)
+ruff check app tests
+ruff format --check app tests
+
+# Static type checking (mypy)
+mypy app
+
+# Dependency vulnerability scan (runtime requirements)
+pip-audit -r requirements.txt
+```
+
+All four gates run in CI (inside the required `backend` check) before the test suite.
+
 ### Run Backend Tests
 
 ```bash

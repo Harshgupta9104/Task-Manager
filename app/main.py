@@ -1,8 +1,8 @@
 """FastAPI application entry point."""
 
 import logging
-from contextlib import asynccontextmanager
 from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -35,6 +35,7 @@ def _build_app(settings_obj=None) -> FastAPI:
     """
     if settings_obj is None:
         from app.config import settings as _settings
+
         settings_obj = _settings
 
     app = FastAPI(

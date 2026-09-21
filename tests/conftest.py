@@ -31,9 +31,7 @@ _test_engine = create_engine(
     connect_args={"check_same_thread": False},
 )
 
-TestSessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=_test_engine
-)
+TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=_test_engine)
 
 
 @pytest.fixture(scope="function")
