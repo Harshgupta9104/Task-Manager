@@ -24,9 +24,21 @@ jobs:
 
       - name: Install dependencies
         # Dev set includes the pinned runtime set via `-r requirements.txt`
-        # plus test tooling (httpx for TestClient, pytest). Runtime installs
-        # (deployment) keep using requirements.txt only.
+        # plus test tooling (httpx, pytest) and quality gates (ruff, mypy,
+        # pip-audit). Runtime installs (deployment) keep requirements.txt only.
         run: pip install -r requirements-dev.txt
+
+      - name: Run backend lint
+        run: ruff check app tests
+
+      - name: Check backend formatting
+        run: ruff format --check app tests
+
+      - name: Run backend type checks
+        run: mypy app
+
+      - name: Audit runtime dependencies
+        run: pip-audit -r requirements.txt
 
       - name: Run backend tests
         # --junitxml: machine-readable results, re-emitted as check-run

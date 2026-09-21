@@ -66,7 +66,9 @@ def list_tasks(
     db: Session = Depends(get_db),
 ) -> TaskListResponse:
     """Get a paginated list of tasks with optional filtering."""
-    tasks, total = get_tasks(db=db, skip=skip, limit=limit, completed=completed, priority=priority, search=search)
+    tasks, total = get_tasks(
+        db=db, skip=skip, limit=limit, completed=completed, priority=priority, search=search
+    )
     return TaskListResponse(
         tasks=[TaskResponse.model_validate(t) for t in tasks],
         total=total,

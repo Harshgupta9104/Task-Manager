@@ -44,9 +44,7 @@ def get_tasks(
     # 1. Search
     if search and search.strip():
         term = f"%{search.strip()}%"
-        query = query.filter(
-            Task.title.ilike(term) | Task.description.ilike(term)
-        )
+        query = query.filter(Task.title.ilike(term) | Task.description.ilike(term))
 
     # 2. Completion filter
     if completed is not None:
@@ -62,12 +60,7 @@ def get_tasks(
     # 5. Order deterministically, then paginate. Ordering is applied before
     # OFFSET/LIMIT so pages are stable; id DESC breaks ties between tasks
     # that share the same created_at.
-    tasks = (
-        query.order_by(Task.created_at.desc(), Task.id.desc())
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
+    tasks = query.order_by(Task.created_at.desc(), Task.id.desc()).offset(skip).limit(limit).all()
 
     return tasks, total
 
@@ -110,15 +103,9 @@ def get_task_stats(db: Session) -> TaskStatsResponse:
         func.sum(
             func.cast(Task.completed == True, sa.Integer)  # noqa: E712
         ).label("completed"),
-        func.sum(
-            func.cast(Task.priority == "high", sa.Integer)
-        ).label("high"),
-        func.sum(
-            func.cast(Task.priority == "medium", sa.Integer)
-        ).label("medium"),
-        func.sum(
-            func.cast(Task.priority == "low", sa.Integer)
-        ).label("low"),
+        func.sum(func.cast(Task.priority == "high", sa.Integer)).label("high"),
+        func.sum(func.cast(Task.priority == "medium", sa.Integer)).label("medium"),
+        func.sum(func.cast(Task.priority == "low", sa.Integer)).label("low"),
     ).one()
 
     total = result.total or 0

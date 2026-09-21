@@ -10,3 +10,9 @@
 # to run the backend test suite even though no source file imports httpx.
 httpx==0.28.1
 pytest==9.1.1
+
+# Backend quality gates (Phase 4): lint + format, static types, and
+# dependency vulnerability scanning. Run in CI before pytest.
+ruff==0.14.1
+mypy==1.18.2
+pip-audit==2.10.1

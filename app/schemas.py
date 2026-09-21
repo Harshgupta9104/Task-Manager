@@ -40,7 +40,7 @@ class TaskCreate(BaseModel):
         examples=["Milk, eggs, bread, butter"],
     )
     priority: Priority = Field(
-        default="medium",
+        default=Priority.MEDIUM,
         description="Task priority: low, medium, or high",
         examples=["medium"],
     )

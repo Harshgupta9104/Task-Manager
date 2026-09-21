@@ -15,7 +15,6 @@ from app.models import Task
 from app.schemas import TaskStatsResponse
 from app.services import get_task_stats
 
-
 # ─── Helpers ────────────────────────────────────────────────────────
 
 
@@ -133,17 +132,13 @@ class TestTitleValidation:
         assert response.status_code == 200
         assert response.json()["title"] == "Keep me"
 
-    @pytest.mark.parametrize(
-        "title", ["Buy groceries", "Meeting with client", " A valid title "]
-    )
+    @pytest.mark.parametrize("title", ["Buy groceries", "Meeting with client", " A valid title "])
     def test_valid_titles_accepted(self, client, title):
         response = client.post("/api/v1/tasks/", json={"title": title})
         assert response.status_code == 201
 
     def test_create_trims_surrounding_whitespace(self, client):
-        response = client.post(
-            "/api/v1/tasks/", json={"title": "   Buy groceries   "}
-        )
+        response = client.post("/api/v1/tasks/", json={"title": "   Buy groceries   "})
         assert response.status_code == 201
         assert response.json()["title"] == "Buy groceries"
 
