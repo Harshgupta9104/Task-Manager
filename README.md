@@ -701,6 +701,28 @@ pytest tests/test_tasks.py::TestTaskStats -v
 pytest tests/test_tasks.py::TestFullCRUDLifecycle -v
 ```
 
+### Branching & Merge Policy
+
+Changes to `main` go through pull requests — direct pushes are blocked. Every PR must pass both CI checks (**backend** and **frontend**) before it can merge, and merges are **squash-only** (one commit per PR) with head branches deleted automatically.
+
+```text
+main
+  ↓
+feature/fix branch
+  ↓
+commits
+  ↓
+Pull Request
+  ↓
+backend CI ✓   frontend CI ✓
+  ↓
+squash merge
+  ↓
+main
+```
+
+`main` is additionally protected against force pushes and deletion. The repository owner retains an emergency bypass path (owner PRs skip the review requirement, and the ruleset can be paused temporarily in repo settings), but CI checks always apply.
+
 ---
 
 ## 🏗 Architecture
