@@ -56,7 +56,12 @@ def db_session():
         yield session
     finally:
         session.close()
-        transaction.rollback()
+        # A test that drove the session into an error state (e.g. an
+        # IntegrityError probe followed by session.rollback()) has already
+        # rolled back this transaction; a second rollback() would emit
+        # "SAWarning: transaction already deassociated from connection".
+        if transaction.is_active:
+            transaction.rollback()
         connection.close()
 
 
