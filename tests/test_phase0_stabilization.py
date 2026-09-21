@@ -3,8 +3,8 @@
 - 0.7: deterministic ordering (created_at DESC, id DESC) incl. pagination
 - 0.8: task title validation (trim + reject whitespace-only/null)
 - 0.9: typed /stats response contract
-- Canary documenting the DB-level priority enforcement gap (no migration
-  is permitted in Phase 0, so the gap is pinned by a test instead).
+- Phase 5 replaced the Phase 0 gap canary with direct-DB tests for the
+  ck_tasks_priority_valid CHECK constraint (TestPriorityDbIntegrity).
 """
 
 from datetime import datetime, timedelta, timezone
@@ -196,22 +196,53 @@ class TestTypedStatsResponse:
         }
 
 
-# ─── Priority DB-level gap (documented, not fixed in Phase 0) ───────
+# ─── Priority DB-level integrity (Phase 5) ─────────────────────────
 
 
-class TestPriorityDbLevelGap:
-    def test_db_accepts_invalid_priority_canary(self, db_session):
-        """Canary documenting the known Phase 0 gap: no DB-level CHECK.
+class TestPriorityDbIntegrity:
+    """Direct-database tests for the ck_tasks_priority_valid CHECK constraint.
 
-        Priority is enforced only at the Pydantic boundary; the column is
-        a plain VARCHAR, so a direct DB write can persist an arbitrary
-        value. Phase 0 forbids schema changes, so the CHECK constraint
-        (or sa.Enum(Priority)) must come with future migration work.
-        When that migration lands, this test will fail — replace it with
-        an assertion that the database rejects the invalid value.
-        """
+    These bypass FastAPI/Pydantic on purpose: priority must be rejected by
+    the database itself, not only at the API boundary.
+    """
+
+    def test_db_rejects_invalid_priority(self, db_session):
+        """A direct insert with priority='urgent' must raise IntegrityError."""
+        from sqlalchemy.exc import IntegrityError
+
         db_session.add(Task(title="raw insert", priority="urgent"))
+        with pytest.raises(IntegrityError, match="ck_tasks_priority_valid"):
+            db_session.commit()
+        db_session.rollback()
+
+    def test_db_rejects_invalid_priority_on_flush(self, db_session):
+        """The constraint also fires on flush() before any commit happens."""
+        from sqlalchemy.exc import IntegrityError
+
+        db_session.add(Task(title="flush probe", priority="critical"))
+        with pytest.raises(IntegrityError, match="ck_tasks_priority_valid"):
+            db_session.flush()
+        db_session.rollback()
+
+    @pytest.mark.parametrize("valid_priority", ["low", "medium", "high"])
+    def test_db_accepts_valid_priorities(self, db_session, valid_priority):
+        """Each valid enum value must still insert cleanly at the DB level."""
+        task = Task(title=f"raw {valid_priority}", priority=valid_priority)
+        db_session.add(task)
         db_session.commit()
 
-        stored = db_session.query(Task).filter(Task.title == "raw insert").one()
-        assert stored.priority == "urgent"  # gap: DB accepted an invalid value
+        stored = db_session.query(Task).filter(Task.title == f"raw {valid_priority}").one()
+        assert stored.priority == valid_priority
+
+    def test_db_rejects_invalid_priority_in_update(self, db_session):
+        """The constraint must also fire on UPDATE, not only INSERT."""
+        from sqlalchemy.exc import IntegrityError
+
+        task = Task(title="update probe", priority="low")
+        db_session.add(task)
+        db_session.commit()
+
+        task.priority = "urgent"
+        with pytest.raises(IntegrityError, match="ck_tasks_priority_valid"):
+            db_session.commit()
+        db_session.rollback()

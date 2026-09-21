@@ -319,6 +319,8 @@ The application uses a single SQLite database with one table:
 └─────────────────────────────────────────────────────────────┘
 ```
 
+Priority is enforced at two levels: **API validation** (the shared `Priority` enum in the Pydantic schemas) and a **database CHECK constraint** (`ck_tasks_priority_valid`, added by migration `a3f9c2d84b17`), so invalid values cannot be stored even by writes that bypass the API. During migration, any pre-existing invalid values are normalized to `medium`; valid rows are never modified.
+
 ### Field Details
 
 | Field | Type | Constraints | Description |
@@ -326,7 +328,7 @@ The application uses a single SQLite database with one table:
 | `id` | `INTEGER` | Primary key, auto-increment | Unique task identifier |
 | `title` | `VARCHAR(255)` | Not null, indexed | Task title (1-255 chars) |
 | `description` | `TEXT` | Nullable | Optional task description (max 5000 chars) |
-| `priority` | `VARCHAR(10)` | Not null, indexed | Priority level: `low`, `medium`, or `high` |
+| `priority` | `VARCHAR(10)` | Not null, indexed, `CHECK (priority IN ('low','medium','high'))` | Priority level: `low`, `medium`, or `high` |
 | `completed` | `BOOLEAN` | Not null, default `false` | Completion status |
 | `created_at` | `DATETIME` | Not null, auto-set | Creation timestamp (UTC) |
 | `updated_at` | `DATETIME` | Not null, auto-set on update | Last update timestamp (UTC) |
