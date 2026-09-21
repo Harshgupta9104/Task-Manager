@@ -1,10 +1,15 @@
-fastapi>=0.104.0
-uvicorn[standard]>=0.24.0
-sqlalchemy>=2.0.0
-pydantic>=2.0.0
-pydantic-settings>=2.0.0
-python-dotenv>=1.0.0
-alembic>=1.12.0
-httpx>=0.25.0
-pytest>=7.0.0
-pytest-asyncio>=0.21.0
+# Runtime dependencies — exact pins for reproducible installs.
+# The same commit must resolve to the same versions locally, in CI, and in
+# deployment. Upgrade deliberately by editing a pin and re-running the suite.
+# Development/test-only dependencies live in requirements-dev.txt.
+#
+# Validated on Python 3.14 (local, 111/111 backend tests) and targeted at
+# Python 3.10 (CI). All pins declare 3.10 support.
+
+fastapi==0.141.1
+uvicorn[standard]==0.53.0
+sqlalchemy==2.0.54
+pydantic==2.13.5
+pydantic-settings==2.15.0
+python-dotenv==1.2.3
+alembic==1.20.0

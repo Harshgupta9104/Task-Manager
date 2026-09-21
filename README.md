@@ -124,7 +124,8 @@ A full-stack task management application with a **FastAPI** backend and **React*
 ├── tests/                        # Backend tests
 │   ├── conftest.py
 │   └── test_tasks.py
-├── requirements.txt              # Python dependencies
+├── requirements.txt              # Pinned runtime dependencies
+├── requirements-dev.txt          # Dev/test dependencies (includes runtime)
 └── README.md
 ```
 
@@ -134,7 +135,7 @@ A full-stack task management application with a **FastAPI** backend and **React*
 
 ### Prerequisites
 
-- **Python 3.10+** (uses modern type hints)
+- **Python 3.10** — the supported version used in CI; newer 3.x interpreters (e.g. 3.14) also work
 - **Node.js 18+** (for frontend)
 - **npm** (Node package manager)
 
@@ -159,8 +160,15 @@ A full-stack task management application with a **FastAPI** backend and **React*
 3. **Install Python dependencies:**
 
    ```bash
+   # Development / running tests (runtime deps + pytest, httpx)
+   pip install -r requirements-dev.txt
+
+   # Or runtime only (e.g. deployment) — no test tooling
    pip install -r requirements.txt
    ```
+
+   All dependencies are pinned to exact versions so the same commit
+   installs the same environment locally, in CI, and in deployment.
 
 4. **(Optional) Create a `.env` file for custom configuration:**
 
@@ -668,6 +676,7 @@ See [DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) for complete setup.
 
 ```bash
 # From project root with venv activated
+# (requires the dev dependency set: pip install -r requirements-dev.txt)
 pytest tests/ -v
 ```
 

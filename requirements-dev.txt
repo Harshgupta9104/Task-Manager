@@ -1,0 +1,12 @@
+# Development and test dependencies.
+# Install this (not requirements.txt) when developing or running CI tests:
+#   pip install -r requirements-dev.txt
+# Deployment/runtime environments install requirements.txt only, so test
+# tooling never ships to production.
+
+-r requirements.txt
+
+# fastapi.testclient.TestClient is an httpx client under the hood — required
+# to run the backend test suite even though no source file imports httpx.
+httpx==0.28.1
+pytest==9.1.1

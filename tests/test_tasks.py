@@ -921,41 +921,48 @@ class TestCORSConfiguration:
 
     VERCEL_ORIGIN = "https://task-manager-pi-gray.vercel.app"
 
-    def _client_with_origins(self, *origins: str):
-        """Return a TestClient whose ALLOWED_ORIGINS are temporarily overridden.
+    def _client_with_origins(self, *origins: str, db_session):
+        """Return a TestClient backed by a temporary app with custom origins.
 
-        The override replaces the module-level ``settings`` on ``app.config``
-        and then recreates the FastAPI app so the live router sees the new
-        value. The original ``settings`` and app are restored in cleanup.
+        A fresh ``Settings`` + ``_build_app()`` instance carries the requested
+        CORS origins, so no module state (``app.config.settings`` or
+        ``app.main.app``) is ever mutated and nothing can leak between tests.
+
+        The temporary app gets its own ``get_db`` override bound to the pytest
+        ``db_session`` fixture: a freshly built app does NOT inherit the
+        shared ``client`` fixture's ``dependency_overrides``, so without this
+        its requests would fall through to the real SQLite database (CI
+        failure: "no such table: tasks"). Overrides are cleared in ``finally``
+        so cleanup runs even if app startup or a request raises.
         """
         from contextlib import contextmanager
 
-        import app.config as config_mod
+        from fastapi.testclient import TestClient
+
         import app.main as main_mod
-
-        original_settings = config_mod.settings
-        original_app = main_mod.app
-
         from app.config import Settings
 
-        config_mod.settings = Settings(ALLOWED_ORIGINS=list(origins))
-        # Recreate the app so CORSMiddleware is rebuilt with the new origins.
-        main_mod.app = main_mod._build_app(config_mod.settings)
+        settings_obj = Settings(ALLOWED_ORIGINS=list(origins))
+        temporary_app = main_mod._build_app(settings_obj)
 
-        from fastapi.testclient import TestClient
+        def override_get_db():
+            yield db_session
+
+        temporary_app.dependency_overrides[get_db] = override_get_db
 
         @contextmanager
         def _inner():
-            with TestClient(main_mod.app) as c:
-                yield c
-            config_mod.settings = original_settings
-            main_mod.app = original_app
+            try:
+                with TestClient(temporary_app) as c:
+                    yield c
+            finally:
+                temporary_app.dependency_overrides.clear()
 
         return _inner()
 
-    def test_options_preflight_from_vercel_origin(self):
+    def test_options_preflight_from_vercel_origin(self, db_session):
         """Preflight requests from the Vercel origin must be allowed."""
-        with self._client_with_origins(self.VERCEL_ORIGIN) as c:
+        with self._client_with_origins(self.VERCEL_ORIGIN, db_session=db_session) as c:
             resp = c.options(
                 "/api/v1/tasks/",
                 headers={
@@ -966,9 +973,9 @@ class TestCORSConfiguration:
         assert resp.status_code == 200
         assert resp.headers.get("access-control-allow-origin") == self.VERCEL_ORIGIN
 
-    def test_get_from_vercel_origin_receives_cors_header(self):
+    def test_get_from_vercel_origin_receives_cors_header(self, db_session):
         """Normal GET requests from the Vercel origin must carry the CORS header."""
-        with self._client_with_origins(self.VERCEL_ORIGIN) as c:
+        with self._client_with_origins(self.VERCEL_ORIGIN, db_session=db_session) as c:
             resp = c.get(
                 "/api/v1/tasks/",
                 headers={"Origin": self.VERCEL_ORIGIN},
@@ -976,9 +983,9 @@ class TestCORSConfiguration:
         assert resp.status_code == 200
         assert resp.headers.get("access-control-allow-origin") == self.VERCEL_ORIGIN
 
-    def test_unrelated_origin_is_not_allowed(self):
+    def test_unrelated_origin_is_not_allowed(self, db_session):
         """A non-configured origin must not receive an allow-origin header."""
-        with self._client_with_origins(self.VERCEL_ORIGIN) as c:
+        with self._client_with_origins(self.VERCEL_ORIGIN, db_session=db_session) as c:
             resp = c.get(
                 "/api/v1/tasks/",
                 headers={"Origin": "https://evil.example.com"},
@@ -988,10 +995,10 @@ class TestCORSConfiguration:
             resp.headers.get("access-control-allow-origin") is None
         ), "unrelated origin must not be allowed"
 
-    def test_trailing_slash_normalization(self):
+    def test_trailing_slash_normalization(self, db_session):
         """A configured origin with a trailing slash must still match the browser."""
         # The browser always sends the origin WITHOUT a trailing slash.
-        with self._client_with_origins(self.VERCEL_ORIGIN + "/") as c:
+        with self._client_with_origins(self.VERCEL_ORIGIN + "/", db_session=db_session) as c:
             resp = c.get(
                 "/api/v1/tasks/",
                 headers={"Origin": self.VERCEL_ORIGIN},
@@ -1001,14 +1008,20 @@ class TestCORSConfiguration:
             resp.headers.get("access-control-allow-origin") == self.VERCEL_ORIGIN
         ), "trailing-slash origin should still match the clean browser origin"
 
-    def test_localhost_still_works_by_default(self):
+    def test_localhost_still_works_by_default(self, db_session, monkeypatch):
         """The default local development origin must keep working."""
         localhost = "http://localhost:5173"
-        # Re-use the app's own default configuration (no override).
-        from app.config import settings
+        # Verify code defaults directly instead of the mutable module
+        # singleton: drop any ALLOWED_ORIGINS env var and skip .env loading,
+        # then build a fresh Settings object.
+        monkeypatch.delenv("ALLOWED_ORIGINS", raising=False)
+        from app.config import Settings
 
-        assert localhost in settings.ALLOWED_ORIGINS
-        with self._client_with_origins(*settings.ALLOWED_ORIGINS) as c:
+        default_settings = Settings(_env_file=None)
+        assert localhost in default_settings.ALLOWED_ORIGINS
+        with self._client_with_origins(
+            *default_settings.ALLOWED_ORIGINS, db_session=db_session
+        ) as c:
             resp = c.get(
                 "/api/v1/tasks/",
                 headers={"Origin": localhost},
@@ -1018,10 +1031,11 @@ class TestCORSConfiguration:
             resp.headers.get("access-control-allow-origin") == localhost
         ), "default localhost origin must still be allowed"
 
-    def test_json_array_env_form_is_accepted(self):
+    def test_json_array_env_form_is_accepted(self, db_session):
         """ALLOWED_ORIGINS='[\"https://task-manager-pi-gray.vercel.app\"]' must work."""
         with self._client_with_origins(
             self.VERCEL_ORIGIN,
+            db_session=db_session,
         ) as c:
             resp = c.get(
                 "/api/v1/tasks/",
@@ -1032,9 +1046,9 @@ class TestCORSConfiguration:
             resp.headers.get("access-control-allow-origin") == self.VERCEL_ORIGIN
         ), "JSON-array env form must configure the origin correctly"
 
-    def test_credentials_headers_and_methods_unchanged(self):
+    def test_credentials_headers_and_methods_unchanged(self, db_session):
         """CORS must keep allow_credentials=True with allow_methods/headers=['*']."""
-        with self._client_with_origins(self.VERCEL_ORIGIN) as c:
+        with self._client_with_origins(self.VERCEL_ORIGIN, db_session=db_session) as c:
             resp = c.options(
                 "/api/v1/tasks/",
                 headers={
