@@ -2,7 +2,7 @@
 
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, Integer, String, Text
+from sqlalchemy import Boolean, CheckConstraint, DateTime, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -14,16 +14,21 @@ class Task(Base):
 
     __tablename__ = "tasks"
 
+    # Defense in depth: the shared Priority enum (app/enums.py) remains the
+    # application-level source of truth; this constraint guards direct DB
+    # writes that bypass API/Pydantic validation.
+    __table_args__ = (
+        CheckConstraint(
+            "priority IN ('low', 'medium', 'high')",
+            name="ck_tasks_priority_valid",
+        ),
+    )
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
-    # NOTE (known Phase 0 gap): priority is stored as a plain VARCHAR with
-    # no DB-level CHECK constraint. Only application-level validation
-    # (the shared Priority enum in Pydantic schemas) prevents invalid
-    # values, so a direct DB write could persist an arbitrary string.
-    # A CHECK (priority IN ('low', 'medium', 'high')) constraint must be
-    # added in the future schema/migration work (Phase 0 forbids schema
-    # changes), ideally by switching this column to sa.Enum(Priority).
+    # Stored as a plain VARCHAR guarded by the ck_tasks_priority_valid CHECK
+    # constraint above — the accepted values mirror app.enums.Priority.
     priority: Mapped[Priority] = mapped_column(
         String(10),
         default=Priority.MEDIUM,
