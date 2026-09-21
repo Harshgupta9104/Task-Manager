@@ -721,7 +721,7 @@ squash merge
 main
 ```
 
-`main` is additionally protected against force pushes and deletion. The repository owner retains an emergency bypass path (owner PRs skip the review requirement, and the ruleset can be paused temporarily in repo settings), but CI checks always apply.
+`main` is additionally protected against force pushes and deletion. There is no bypass actor: failing required checks block merging for everyone. As an emergency recovery path, a repository admin can temporarily pause the ruleset in the repo settings (Admin → Rules → Rulesets → main-branch-protection), which is audit-logged.
 
 ---
 
